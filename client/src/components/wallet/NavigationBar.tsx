@@ -56,10 +56,10 @@ const NavigationBar = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link href="/wallet">
-            <a className="flex items-center">
+            <div className="flex items-center cursor-pointer">
               <WalletLogo size={32} />
               <span className="ml-2 text-lg font-bold text-white hidden sm:block">CryptoVault</span>
-            </a>
+            </div>
           </Link>
           
           {/* Desktop Navigation */}
@@ -73,10 +73,10 @@ const NavigationBar = () => {
                 asChild
               >
                 <Link href={item.path}>
-                  <a>
+                  <div className="flex items-center gap-2">
                     {item.icon}
                     <span>{item.label}</span>
-                  </a>
+                  </div>
                 </Link>
               </Button>
             ))}
@@ -152,10 +152,10 @@ const NavigationBar = () => {
                   asChild
                 >
                   <Link href={item.path}>
-                    <a className="flex items-center gap-3">
+                    <div className="flex items-center gap-3">
                       {item.icon}
                       <span className="text-lg">{item.label}</span>
-                    </a>
+                    </div>
                   </Link>
                 </Button>
               ))}
