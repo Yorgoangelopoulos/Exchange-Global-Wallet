@@ -20,7 +20,7 @@ export const useCryptoPrice = () => {
         
         // List of coins to fetch
         const coinIds = [
-          'bitcoin', 'ethereum', 'solana', 'tron', 
+          'ethereum', 'solana', 'tron', 
           'avalanche', 'cardano', 'tether', 'bnb', 
           'xrp', 'polkadot', 'dogecoin'
         ];
@@ -61,7 +61,6 @@ export const useCryptoPrice = () => {
     // Fallback function if API fails
     const useFallbackPrices = () => {
       const fallbackPrices: PriceData[] = [
-        { id: 'bitcoin', price: 36289.42, change24h: 1.2 },
         { id: 'ethereum', price: 1925.37, change24h: -0.8 },
         { id: 'solana', price: 42.18, change24h: 3.5 },
         { id: 'tron', price: 0.13, change24h: 1.95 },
