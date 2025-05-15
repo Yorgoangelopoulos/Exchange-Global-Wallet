@@ -79,7 +79,7 @@ const CryptoCard = ({
                   onError={(e) => {
                     // Fallback if the icon is not available
                     const target = e.target as HTMLImageElement;
-                    target.src = `https://ui-avatars.com/api/?name=${currency.symbol}&background=random&color=fff`;
+                    target.src = `https://ui-avatars.com/api/?name=${currency.symbol}&background=random&color=fff&rounded=true&bold=true`;
                   }}
                 />
               </div>
