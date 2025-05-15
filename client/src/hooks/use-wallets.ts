@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { CryptoCurrency, Balance, Transaction, Wallet } from '@shared/schema';
 import { apiRequest } from '@/lib/queryClient';
-import { useWalletContext } from '@/context/WalletContext';
 
 export interface WalletInfo {
   id: string;
@@ -17,7 +16,7 @@ export const useWallets = () => {
   const [wallets, setWallets] = useState<WalletInfo[]>([]);
   const [walletsLoaded, setWalletsLoaded] = useState(false);
   
-  const { activeWalletId, setActiveWalletId } = useWalletContext();
+  const [activeWalletId, setActiveWalletId] = useState<string>('');
   
   // Fetch wallets from API
   const fetchWallets = useCallback(async () => {
@@ -158,7 +157,12 @@ export const useWallets = () => {
         }))
       );
       
-      // Here we could also notify the server about the active wallet if needed
+      // Local storage'a kaydet
+      localStorage.setItem('active_wallet_id', walletId);
+      
+      // Diğer componentleri bilgilendir
+      window.dispatchEvent(new Event('wallet-changed'));
+      
       return true;
     } catch (error) {
       console.error('Error setting active wallet:', error);
@@ -231,6 +235,8 @@ export const useWallets = () => {
           // Call this outside of the setState function to avoid race conditions
           setTimeout(() => {
             setActiveWallet(updatedWallets[0].id);
+            // Cüzdan silindikten sonra dashboard'u güncellemek için
+            window.dispatchEvent(new Event('wallet-changed'));
           }, 0);
         }
         

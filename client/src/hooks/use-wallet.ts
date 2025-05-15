@@ -103,9 +103,6 @@ interface WalletState {
 
 // Hook for wallet operations
 export const useWallet = () => {
-  // Local storage'dan active wallet ID'yi al
-  const [activeWalletId, setActiveWalletId] = useState<string | null>(null);
-  
   // Initial state
   const [wallet, setWallet] = useState<WalletState>({
     currencies: initialCurrencies,
@@ -114,35 +111,49 @@ export const useWallet = () => {
     favorites: initialFavorites
   });
   
-  // Local storage'dan active wallet ID'yi load et
+  // Load active wallet ID from localStorage and refresh cüzdan içeriği
   useEffect(() => {
-    const storedActiveWalletId = localStorage.getItem('active_wallet_id');
-    if (storedActiveWalletId) {
-      setActiveWalletId(storedActiveWalletId);
-    }
+    // Local storage'dan active wallet ID'yi load et
+    const refreshWalletData = () => {
+      const storedActiveWalletId = localStorage.getItem('active_wallet_id');
+      if (storedActiveWalletId) {
+        console.log(`Loading data for wallet ID: ${storedActiveWalletId}`);
+        
+        // Gerçek API çağrısı yerine demo veri oluştur
+        const walletIdNum = parseInt(storedActiveWalletId) || 1;
+        
+        // Her cüzdan için farklı bakiyeleri simüle et
+        const adjustedBalances = initialBalances.map(balance => ({
+          ...balance,
+          amount: (parseFloat(balance.amount) * (walletIdNum % 5 + 0.5)).toFixed(2)
+        }));
+        
+        setWallet(prev => ({
+          ...prev,
+          balances: adjustedBalances
+        }));
+      }
+    };
+    
+    // Initial load
+    refreshWalletData();
+    
+    // Storage event dinle (başka tablar için)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'active_wallet_id') {
+        refreshWalletData();
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    // Custom event oluştur ve dinle (aynı penceredeki değişiklikleri tespit etmek için)
+    window.addEventListener('wallet-changed', refreshWalletData);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('wallet-changed', refreshWalletData);
+    };
   }, []);
-  
-  // Update wallet data when active wallet changes
-  useEffect(() => {
-    // In a real app, we would fetch the wallet data from the API
-    if (activeWalletId) {
-      console.log(`Loading data for wallet ID: ${activeWalletId}`);
-      
-      // Gerçek API çağrısı yerine demo veri oluştur
-      const walletIdNum = parseInt(activeWalletId) || 1;
-      
-      // Her cüzdan için farklı bakiyeleri simüle et
-      const adjustedBalances = initialBalances.map(balance => ({
-        ...balance,
-        amount: (parseFloat(balance.amount) * (walletIdNum % 5 + 0.5)).toFixed(2)
-      }));
-      
-      setWallet(prev => ({
-        ...prev,
-        balances: adjustedBalances
-      }));
-    }
-  }, [activeWalletId]);
   
   // Function to toggle a cryptocurrency as favorite
   const toggleFavorite = (currencyId: string) => {
