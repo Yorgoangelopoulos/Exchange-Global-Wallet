@@ -87,7 +87,13 @@ const ImportWalletPanel = ({ onClose, onWalletImported }: ImportWalletPanelProps
           body: JSON.stringify({
             name: walletName,
             importMethod: 'mnemonic',
-            credentials: mnemonicPhrase
+            credentials: mnemonicPhrase,
+            addresses: [
+              { currency: 'BTC', address: btcWallet.address, path: btcWallet.path },
+              { currency: 'ETH', address: ethWallet.address, path: ethWallet.path },
+              { currency: 'SOL', address: solWallet.address, path: solWallet.path },
+              { currency: 'TRX', address: trxWallet.address, path: trxWallet.path }
+            ]
           })
         });
         

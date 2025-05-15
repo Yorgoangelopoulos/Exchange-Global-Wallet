@@ -79,47 +79,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // API Routes - Wallet Management
   app.post('/api/wallet/create', asyncHandler(async (req: Request, res: Response) => {
-    const { name, userId } = req.body;
+    const { name, mnemonic, type, addresses } = req.body;
     
-    if (!name || !userId) {
-      return res.status(400).json({ error: "Wallet name and user ID are required" });
+    if (!name) {
+      return res.status(400).json({ error: "Wallet name is required" });
     }
     
-    // Generate a secure mnemonic
-    const mnemonic = bip39.generateMnemonic(256);
+    // Use provided mnemonic or generate a new one
+    const seedPhrase = mnemonic || bip39.generateMnemonic(256);
+    
+    // Get user ID from authenticated session (simplified for now)
+    const userId = 1; // In production, this would come from the session
     
     // Create wallet record
     const wallet = await storage.createWallet({
       name,
       userId,
-      type: 'hd', // HD wallet with seed phrase
-      mnemonic: mnemonic, // In production, this should be encrypted
+      type: type || 'hd', // HD wallet with seed phrase
+      mnemonic: seedPhrase, // In production, this should be encrypted
       isActive: true
     });
     
-    // Generate addresses for supported cryptocurrencies
-    const currencies = ['bitcoin', 'ethereum', 'solana', 'tron', 'cardano'];
-    const addresses = [];
+    const storedAddressList = [];
     
-    for (const currency of currencies) {
-      try {
-        const walletAddress = generateWalletAddress(mnemonic, currency, 0);
-        
-        // Store address in database
-        await storage.createWalletAddress({
-          walletId: wallet.id,
-          currencyId: currency,
-          address: walletAddress.address,
-          path: walletAddress.path,
-          privateKey: walletAddress.privateKey // In production, this should be encrypted
-        });
-        
-        addresses.push({
-          currency,
-          address: walletAddress.address
-        });
-      } catch (error) {
-        console.error(`Error generating address for ${currency}:`, error);
+    // Use provided addresses or generate them
+    if (addresses && Array.isArray(addresses)) {
+      // Use the addresses provided from the frontend
+      for (const addr of addresses) {
+        try {
+          await storage.createWalletAddress({
+            walletId: wallet.id,
+            currencyId: addr.currency,
+            address: addr.address,
+            path: addr.path,
+            privateKey: "" // We don't store private keys directly, just the derivation path
+          });
+          
+          storedAddressList.push({
+            currency: addr.currency,
+            address: addr.address
+          });
+        } catch (error) {
+          console.error(`Error storing address for ${addr.currency}:`, error);
+        }
+      }
+    } else {
+      // Generate addresses for supported cryptocurrencies
+      const currencies = ['BTC', 'ETH', 'SOL', 'TRX', 'ADA'];
+      
+      for (const currency of currencies) {
+        try {
+          const walletAddress = generateWalletAddress(seedPhrase, currency.toLowerCase(), 0);
+          
+          // Store address in database
+          await storage.createWalletAddress({
+            walletId: wallet.id,
+            currencyId: currency,
+            address: walletAddress.address,
+            path: walletAddress.path,
+            privateKey: "" // Don't store actual private keys, use the seed phrase + path instead
+          });
+          
+          storedAddressList.push({
+            currency,
+            address: walletAddress.address
+          });
+        } catch (error) {
+          console.error(`Error generating address for ${currency}:`, error);
+        }
       }
     }
     
@@ -127,56 +154,108 @@ export async function registerRoutes(app: Express): Promise<Server> {
       wallet: {
         id: wallet.id,
         name: wallet.name,
-        addresses
+        addresses: storedAddressList
       },
       mnemonic // In production, you might not want to return this directly
     });
   }));
   
   app.post('/api/wallet/import', asyncHandler(async (req: Request, res: Response) => {
-    const { name, userId, mnemonic } = req.body;
+    const { name, importMethod, credentials, addresses } = req.body;
     
-    if (!name || !userId || !mnemonic) {
-      return res.status(400).json({ error: "Name, user ID, and mnemonic are required" });
+    if (!name || !importMethod || !credentials) {
+      return res.status(400).json({ error: "Name, import method, and credentials are required" });
     }
     
-    // Validate mnemonic
-    if (!bip39.validateMnemonic(mnemonic)) {
-      return res.status(400).json({ error: "Invalid mnemonic phrase" });
+    // Get user ID from authenticated session (simplified for now)
+    const userId = 1; // In production, this would come from the session
+    
+    if (importMethod === 'mnemonic') {
+      // Validate mnemonic
+      if (!bip39.validateMnemonic(credentials)) {
+        return res.status(400).json({ error: "Invalid mnemonic phrase" });
+      }
     }
     
     // Create wallet record
     const wallet = await storage.createWallet({
       name,
       userId,
-      type: 'imported_mnemonic',
-      mnemonic: mnemonic, // In production, this should be encrypted
+      type: importMethod === 'mnemonic' ? 'imported_mnemonic' : 'imported_privatekey',
+      mnemonic: importMethod === 'mnemonic' ? credentials : '',
       isActive: true
     });
     
-    // Generate addresses for supported cryptocurrencies
-    const currencies = ['bitcoin', 'ethereum', 'solana', 'tron', 'cardano'];
-    const addresses = [];
+    const storedAddresses = [];
     
-    for (const currency of currencies) {
+    // If addresses are provided, use them
+    if (addresses && Array.isArray(addresses)) {
+      for (const addr of addresses) {
+        try {
+          await storage.createWalletAddress({
+            walletId: wallet.id,
+            currencyId: addr.currency,
+            address: addr.address,
+            path: addr.path || '',
+            privateKey: '' // We don't store private keys directly
+          });
+          
+          storedAddresses.push({
+            currency: addr.currency,
+            address: addr.address
+          });
+        } catch (error) {
+          console.error(`Error storing address for ${addr.currency}:`, error);
+        }
+      }
+    } else if (importMethod === 'mnemonic') {
+      // Generate addresses for supported cryptocurrencies from mnemonic
+      const currencies = ['BTC', 'ETH', 'SOL', 'TRX', 'ADA'];
+      
+      for (const currency of currencies) {
+        try {
+          const walletAddress = generateWalletAddress(credentials, currency.toLowerCase(), 0);
+          
+          // Store address in database
+          await storage.createWalletAddress({
+            walletId: wallet.id,
+            currencyId: currency,
+            address: walletAddress.address,
+            path: walletAddress.path,
+            privateKey: '' // Don't store actual private keys
+          });
+          
+          storedAddresses.push({
+            currency,
+            address: walletAddress.address
+          });
+        } catch (error) {
+          console.error(`Error generating address for ${currency}:`, error);
+        }
+      }
+    } else {
+      // Handle private key import - would generate address from private key
+      // This is simplified, in reality we'd need to determine which network the key is for
       try {
-        const walletAddress = generateWalletAddress(mnemonic, currency, 0);
+        // For example, assume it's an ETH key
+        // Normally we'd infer this from the key format
+        const currency = 'ETH';
+        const address = '0x' + credentials.slice(-40); // Simplified, would extract address from key
         
-        // Store address in database
         await storage.createWalletAddress({
           walletId: wallet.id,
           currencyId: currency,
-          address: walletAddress.address,
-          path: walletAddress.path,
-          privateKey: walletAddress.privateKey // In production, this should be encrypted
+          address: address,
+          path: '',
+          privateKey: ''
         });
         
-        addresses.push({
+        storedAddresses.push({
           currency,
-          address: walletAddress.address
+          address
         });
       } catch (error) {
-        console.error(`Error generating address for ${currency}:`, error);
+        console.error('Error storing private key address:', error);
       }
     }
     
@@ -184,7 +263,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       wallet: {
         id: wallet.id,
         name: wallet.name,
-        addresses
+        addresses: storedAddresses
       }
     });
   }));

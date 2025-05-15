@@ -23,8 +23,9 @@ export const wallets = pgTable("wallets", {
   id: serial("id").primaryKey(),
   userId: serial("user_id").references(() => users.id),
   name: text("name").notNull(),
-  type: text("type").notNull(), // 'hd', 'imported_mnemonic', 'imported_private_key'
+  type: text("type").notNull(), // 'hd', 'imported_mnemonic', 'imported_privatekey'
   mnemonic: text("mnemonic"), // Encrypted mnemonic phrase (if type is 'hd' or 'imported_mnemonic')
+  privateKey: text("private_key"), // Encrypted private key (if type is 'imported_privatekey')
   createdAt: timestamp("created_at").defaultNow().notNull(),
   isActive: boolean("is_active").notNull().default(true)
 });
