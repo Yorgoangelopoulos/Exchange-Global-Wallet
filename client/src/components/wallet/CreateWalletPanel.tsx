@@ -13,25 +13,10 @@ interface CreateWalletPanelProps {
   onWalletCreated: (walletName: string) => void;
 }
 
-// Generate a random seed phrase for demo purposes
+// Generate a real-world compatible seed phrase using BIP39
 const generateSeedPhrase = (wordCount: number): string => {
-  const words = [
-    'abandon', 'ability', 'able', 'about', 'above', 'absent', 'absorb', 'abstract', 'absurd', 'abuse',
-    'access', 'accident', 'account', 'accuse', 'achieve', 'acid', 'acoustic', 'acquire', 'across', 'act',
-    'action', 'actor', 'actress', 'actual', 'adapt', 'add', 'addict', 'address', 'adjust', 'admit',
-    'adult', 'advance', 'advice', 'aerobic', 'affair', 'afford', 'afraid', 'again', 'age', 'agent',
-    'agree', 'ahead', 'aim', 'air', 'airport', 'aisle', 'alarm', 'album', 'alcohol', 'alert',
-    'alien', 'all', 'alley', 'allow', 'almost', 'alone', 'alpha', 'already', 'also', 'alter',
-    'always', 'amateur', 'amazing', 'among', 'amount', 'amused', 'analyst', 'anchor', 'ancient', 'anger'
-  ];
-  
-  const seedWords = [];
-  for (let i = 0; i < wordCount; i++) {
-    const randomIndex = Math.floor(Math.random() * words.length);
-    seedWords.push(words[randomIndex]);
-  }
-  
-  return seedWords.join(' ');
+  const strength = wordCount === 24 ? 256 : 128; // 128 bits for 12 words, 256 bits for 24 words
+  return generateMnemonic(strength);
 };
 
 const CreateWalletPanel = ({ onClose, onWalletCreated }: CreateWalletPanelProps) => {
@@ -85,15 +70,34 @@ const CreateWalletPanel = ({ onClose, onWalletCreated }: CreateWalletPanelProps)
       return;
     }
     
-    // In a real app, we would create a wallet using the generated seed
-    onWalletCreated(walletName);
-    onClose();
-    
-    toast({
-      title: "Wallet Created",
-      description: `Your new wallet "${walletName}" has been created successfully.`,
-      variant: "default"
-    });
+    // Create real cryptocurrency addresses from the seed
+    try {
+      // Generate addresses for main cryptocurrencies
+      const btcWallet = generateWalletAddress(seedPhrase, 'btc');
+      const ethWallet = generateWalletAddress(seedPhrase, 'eth');
+      const solWallet = generateWalletAddress(seedPhrase, 'sol');
+      
+      console.log('Bitcoin address:', btcWallet.address);
+      console.log('Ethereum address:', ethWallet.address);
+      console.log('Solana address:', solWallet.address);
+      
+      onWalletCreated(walletName);
+      onClose();
+      
+      toast({
+        title: "Wallet Created",
+        description: `Your new wallet "${walletName}" has been created successfully with real cryptocurrency addresses.`,
+        variant: "default"
+      });
+    } catch (error) {
+      console.error('Error creating wallet addresses:', error);
+      
+      toast({
+        title: "Wallet Creation Error",
+        description: `There was an error creating the wallet: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        variant: "destructive"
+      });
+    }
   };
 
   return (
