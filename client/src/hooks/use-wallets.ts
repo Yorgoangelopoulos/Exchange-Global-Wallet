@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { CryptoCurrency, Balance, Transaction, Wallet } from '@shared/schema';
 import { useWallet } from './use-wallet';
 import { apiRequest } from '@/lib/queryClient';
@@ -14,36 +14,70 @@ export interface WalletInfo {
 
 // Hook for managing multiple wallets
 export const useWallets = () => {
-  const [wallets, setWallets] = useState<WalletInfo[]>(() => {
-    const savedWallets = localStorage.getItem('crypto_wallets');
-    
-    if (savedWallets) {
-      return JSON.parse(savedWallets);
-    }
-    
-    // Default wallet
-    return [{
-      id: 'default-wallet',
-      name: 'My Wallet',
-      type: 'local',
-      isActive: true,
-      dateCreated: new Date().toISOString()
-    }];
-  });
+  const [wallets, setWallets] = useState<WalletInfo[]>([]);
+  const [walletsLoaded, setWalletsLoaded] = useState(false);
   
-  const [activeWalletId, setActiveWalletId] = useState<string>(() => {
-    const activeId = localStorage.getItem('active_wallet_id');
-    return activeId || wallets[0]?.id || 'default-wallet';
-  });
+  const [activeWalletId, setActiveWalletId] = useState<string>('');
+  
+  // Fetch wallets from API
+  const fetchWallets = useCallback(async () => {
+    try {
+      const userId = 1; // This would come from authentication
+      const response = await apiRequest(`/api/wallets/${userId}`);
+      const data = await response.json();
+      
+      if (data?.wallets) {
+        const fetchedWallets: WalletInfo[] = data.wallets.map((w: any) => ({
+          id: w.id.toString(),
+          name: w.name,
+          type: w.type || 'local',
+          importMethod: w.mnemonic ? 'mnemonic' : w.privateKey ? 'privateKey' : undefined,
+          isActive: false, // We'll set the active one below
+          dateCreated: w.createdAt || new Date().toISOString()
+        }));
+        
+        // Make sure at least one wallet is active
+        if (fetchedWallets.length > 0) {
+          fetchedWallets[0].isActive = true;
+          setActiveWalletId(fetchedWallets[0].id);
+        }
+        
+        setWallets(fetchedWallets);
+      }
+    } catch (error) {
+      console.error('Error fetching wallets:', error);
+      // Fallback to default wallet if API fails
+      const defaultWallet = {
+        id: 'default-wallet',
+        name: 'My Wallet',
+        type: 'local' as const,
+        isActive: true,
+        dateCreated: new Date().toISOString()
+      };
+      setWallets([defaultWallet]);
+      setActiveWalletId(defaultWallet.id);
+    } finally {
+      setWalletsLoaded(true);
+    }
+  }, []);
+  
+  // Initial load of wallets from API
+  useEffect(() => {
+    fetchWallets();
+  }, [fetchWallets]);
   
   // Save wallets to localStorage whenever they change
   useEffect(() => {
-    localStorage.setItem('crypto_wallets', JSON.stringify(wallets));
+    if (wallets.length > 0) {
+      localStorage.setItem('crypto_wallets', JSON.stringify(wallets));
+    }
   }, [wallets]);
   
   // Save active wallet ID whenever it changes
   useEffect(() => {
-    localStorage.setItem('active_wallet_id', activeWalletId);
+    if (activeWalletId) {
+      localStorage.setItem('active_wallet_id', activeWalletId);
+    }
   }, [activeWalletId]);
   
   // Get the active wallet
@@ -182,7 +216,9 @@ export const useWallets = () => {
         method: 'DELETE'
       });
       
-      if (!response.success) {
+      const data = await response.json();
+      
+      if (!data.success) {
         throw new Error('Failed to delete wallet');
       }
       
