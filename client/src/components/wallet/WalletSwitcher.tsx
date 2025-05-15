@@ -30,6 +30,7 @@ const WalletSwitcher = () => {
   const { 
     wallets, 
     activeWallet, 
+    setWallets,
     createWallet, 
     importWallet, 
     setActiveWallet, 
@@ -135,31 +136,32 @@ const WalletSwitcher = () => {
         variant: "default"
       });
       
-      // Force a refresh of the wallet list from the server
-      const userId = 1; // This would come from authentication
-      const response = await apiRequest(`/api/wallets/${userId}`);
-      const data = await response.json();
-      
-      if (data?.wallets) {
-        const fetchedWallets: WalletInfo[] = data.wallets.map((w: any) => ({
-          id: w.id.toString(),
-          name: w.name,
-          type: w.type || 'local',
-          importMethod: w.mnemonic ? 'mnemonic' : w.privateKey ? 'privateKey' : undefined,
+      // Yeni cüzdanın bilgilerini direkt olarak ekleyelim
+      if (walletData?.wallet) {
+        const newWallet: WalletInfo = {
+          id: walletData.wallet.id.toString(),
+          name: name,
+          type: 'local',
           isActive: false,
-          dateCreated: w.createdAt || new Date().toISOString()
+          dateCreated: new Date().toISOString()
+        };
+        
+        // Mevcut cüzdan listesine ekleyelim
+        const updatedWallets = [...wallets, newWallet];
+        
+        // Aktif olmayan cüzdanlar haline getirelim hepsini
+        const deactivatedWallets = updatedWallets.map(w => ({
+          ...w,
+          isActive: false
         }));
         
-        // Update wallets in state
-        setWallets(fetchedWallets);
-        
-        // Set created wallet as active
-        if (walletData?.wallet?.id) {
-          const newWalletId = walletData.wallet.id.toString();
-          setActiveWallet(newWalletId);
-        } else if (fetchedWallets.length > 0) {
-          // If we can't identify the new wallet, set the last one as active
-          setActiveWallet(fetchedWallets[fetchedWallets.length - 1].id);
+        // Yeni cüzdanı aktif hale getirelim
+        if (newWallet) {
+          // Setwallets ile deactivatedWallets listesini güncelle
+          setWallets(deactivatedWallets);
+          
+          // Yeni cüzdanı aktif yap
+          setActiveWallet(newWallet.id);
         }
       }
     } catch (error) {

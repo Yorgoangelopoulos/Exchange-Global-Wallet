@@ -101,6 +101,9 @@ const ImportWalletPanel = ({ onClose, onWalletImported }: ImportWalletPanelProps
           throw new Error(`Server error: ${response.status}`);
         }
         
+        // Parse response to get wallet data
+        const responseData = await response.json();
+        
         toast({
           title: "Wallet Imported Successfully",
           description: `Your wallet "${walletName}" has been imported with derived cryptocurrency addresses.`,
@@ -121,6 +124,9 @@ const ImportWalletPanel = ({ onClose, onWalletImported }: ImportWalletPanelProps
           throw new Error(`Server error: ${response.status}`);
         }
         
+        // Parse response for private key import
+        const pkResponseData = await response.json();
+        
         toast({
           title: "Wallet Imported Successfully",
           description: `Your wallet "${walletName}" has been imported with private key.`,
@@ -129,7 +135,9 @@ const ImportWalletPanel = ({ onClose, onWalletImported }: ImportWalletPanelProps
       }
       
       // Call the callback function for the parent component
-      onWalletImported(walletName);
+      // Send the response data to the parent component
+      const resultData = responseData || pkResponseData;
+      onWalletImported(walletName, resultData);
       onClose();
     } catch (error) {
       console.error('Error importing wallet:', error);

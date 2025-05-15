@@ -247,6 +247,7 @@ export const useWallets = () => {
   return {
     wallets,
     activeWallet,
+    setWallets,
     createWallet,
     importWallet,
     setActiveWallet,
