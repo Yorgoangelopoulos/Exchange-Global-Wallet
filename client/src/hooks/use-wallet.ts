@@ -93,7 +93,7 @@ const initialTransactions: Transaction[] = [
   }
 ];
 
-const initialFavorites: string[] = ['bitcoin', 'ethereum'];
+const initialFavorites: string[] = ['ethereum', 'tron'];
 
 // Type for our wallet state
 interface WalletState {

@@ -71,15 +71,15 @@ const ImportWalletPanel = ({ onClose, onWalletImported }: ImportWalletPanelProps
       // Generate addresses for main cryptocurrencies from the mnemonic
       if (activeTab === 'mnemonic') {
         // Generate addresses for each cryptocurrency to verify the mnemonic
-        const btcWallet = generateWalletAddress(mnemonicPhrase, 'btc');
         const ethWallet = generateWalletAddress(mnemonicPhrase, 'eth');
         const solWallet = generateWalletAddress(mnemonicPhrase, 'sol');
         const trxWallet = generateWalletAddress(mnemonicPhrase, 'trx');
+        const adaWallet = generateWalletAddress(mnemonicPhrase, 'ada');
         
-        console.log('Bitcoin address:', btcWallet.address);
         console.log('Ethereum address:', ethWallet.address);
         console.log('Solana address:', solWallet.address);
         console.log('Tron address:', trxWallet.address);
+        console.log('Cardano address:', adaWallet.address);
         
         // Save the wallet details to the backend API
         const response = await apiRequest('/api/wallet/import', {
@@ -89,10 +89,10 @@ const ImportWalletPanel = ({ onClose, onWalletImported }: ImportWalletPanelProps
             importMethod: 'mnemonic',
             credentials: mnemonicPhrase,
             addresses: [
-              { currency: 'BTC', address: btcWallet.address, path: btcWallet.path },
-              { currency: 'ETH', address: ethWallet.address, path: ethWallet.path },
-              { currency: 'SOL', address: solWallet.address, path: solWallet.path },
-              { currency: 'TRX', address: trxWallet.address, path: trxWallet.path }
+              { currency: 'ethereum', address: ethWallet.address, path: ethWallet.path },
+              { currency: 'solana', address: solWallet.address, path: solWallet.path },
+              { currency: 'tron', address: trxWallet.address, path: trxWallet.path },
+              { currency: 'cardano', address: adaWallet.address, path: adaWallet.path }
             ]
           })
         });

@@ -93,10 +93,10 @@ const CreateWalletPanel = ({ onClose, onWalletCreated }: CreateWalletPanelProps)
             mnemonic: seedPhrase,
             type: 'local',
             addresses: [
-              { currency: 'ETH', address: ethWallet.address, path: ethWallet.path },
-              { currency: 'SOL', address: solWallet.address, path: solWallet.path },
-              { currency: 'TRX', address: trxWallet.address, path: trxWallet.path },
-              { currency: 'ADA', address: adaWallet.address, path: adaWallet.path }
+              { currency: 'ethereum', address: ethWallet.address, path: ethWallet.path },
+              { currency: 'solana', address: solWallet.address, path: solWallet.path },
+              { currency: 'tron', address: trxWallet.address, path: trxWallet.path },
+              { currency: 'cardano', address: adaWallet.address, path: adaWallet.path }
             ]
           })
         });
