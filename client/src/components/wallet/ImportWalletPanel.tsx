@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { X, ArrowLeft, Upload, Key, FileText, AlertTriangle } from 'lucide-react';
+import { X, ArrowLeft, Upload, Key, FileText, AlertTriangle, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -238,6 +238,50 @@ const ImportWalletPanel = ({ onClose, onWalletImported }: ImportWalletPanelProps
                       onChange={(e) => setMnemonicPhrase(e.target.value)}
                       className="w-full h-32 mt-1.5 bg-gray-800 border border-gray-700 rounded-md p-3 text-white focus:border-blue-500 focus:ring-0 resize-none"
                     />
+                    <div className="flex justify-end mt-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-8 text-xs border-gray-700 text-gray-300 hover:bg-gray-800"
+                        onClick={() => {
+                          if (!walletName.trim()) {
+                            toast({
+                              title: "Wallet Adı Gerekli",
+                              description: "Private key'i indirmeden önce lütfen cüzdan adı giriniz.",
+                              variant: "destructive"
+                            });
+                            return;
+                          }
+                          
+                          if (!validateMnemonicPhrase(mnemonicPhrase)) {
+                            toast({
+                              title: "Geçersiz Recovery Phrase",
+                              description: `Lütfen geçerli bir ${mnemonicLength}-kelimelik recovery phrase girin.`,
+                              variant: "destructive"
+                            });
+                            return;
+                          }
+                          
+                          const formattedWalletName = walletName.trim().replace(/[^a-z0-9]/gi, '_').toLowerCase();
+                          const element = document.createElement('a');
+                          const file = new Blob([`Recovery Phrase (KEEP SECURE!):\n\n${mnemonicPhrase}\n\nWallet: ${walletName}`], {type: 'text/plain'});
+                          element.href = URL.createObjectURL(file);
+                          element.download = `${formattedWalletName}-recovery-phrase.txt`;
+                          document.body.appendChild(element);
+                          element.click();
+                          document.body.removeChild(element);
+                          
+                          toast({
+                            title: "Seed Phrase İndirildi",
+                            description: `"${walletName}" cüzdanı için recovery phrase indirildi. Güvenli bir yerde saklayın!`,
+                            variant: "default"
+                          });
+                        }}
+                      >
+                        <Download className="w-3.5 h-3.5 mr-1" />
+                        Kaydet
+                      </Button>
+                    </div>
                     <p className="text-xs text-gray-400 mt-1.5">
                       Enter your {mnemonicLength}-word recovery phrase with words separated by spaces.
                     </p>
@@ -256,6 +300,50 @@ const ImportWalletPanel = ({ onClose, onWalletImported }: ImportWalletPanelProps
                       onChange={(e) => setPrivateKey(e.target.value)}
                       className="bg-gray-800 border-gray-700 focus:border-blue-500 text-white mt-1.5 font-mono"
                     />
+                    <div className="flex justify-end mt-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-8 text-xs border-gray-700 text-gray-300 hover:bg-gray-800"
+                        onClick={() => {
+                          if (!walletName.trim()) {
+                            toast({
+                              title: "Wallet Adı Gerekli",
+                              description: "Private key'i indirmeden önce lütfen cüzdan adı giriniz.",
+                              variant: "destructive"
+                            });
+                            return;
+                          }
+                          
+                          if (!validatePrivateKey(privateKey)) {
+                            toast({
+                              title: "Geçersiz Private Key",
+                              description: "Lütfen geçerli bir private key girin (64 hex karakter).",
+                              variant: "destructive"
+                            });
+                            return;
+                          }
+                          
+                          const formattedWalletName = walletName.trim().replace(/[^a-z0-9]/gi, '_').toLowerCase();
+                          const element = document.createElement('a');
+                          const file = new Blob([`Private Key (KEEP SECURE!):\n\n${privateKey}\n\nWallet: ${walletName}`], {type: 'text/plain'});
+                          element.href = URL.createObjectURL(file);
+                          element.download = `${formattedWalletName}-private-key.txt`;
+                          document.body.appendChild(element);
+                          element.click();
+                          document.body.removeChild(element);
+                          
+                          toast({
+                            title: "Private Key İndirildi",
+                            description: `"${walletName}" cüzdanı için private key indirildi. Güvenli bir yerde saklayın!`,
+                            variant: "default"
+                          });
+                        }}
+                      >
+                        <Download className="w-3.5 h-3.5 mr-1" />
+                        Kaydet
+                      </Button>
+                    </div>
                     <p className="text-xs text-gray-400 mt-1.5">
                       Enter your private key in hexadecimal format (64 characters).
                     </p>

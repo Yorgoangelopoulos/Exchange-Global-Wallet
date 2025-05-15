@@ -37,17 +37,28 @@ const CreateWalletPanel = ({ onClose, onWalletCreated }: CreateWalletPanelProps)
   };
 
   const handleDownloadSeed = () => {
+    // Kullanıcı wallet adı girmemiş ise uyarı göster
+    if (!walletName.trim()) {
+      toast({
+        title: "Wallet Adı Gerekli",
+        description: "Private key'i indirmeden önce lütfen cüzdan adı giriniz.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    const formattedWalletName = walletName.trim().replace(/[^a-z0-9]/gi, '_').toLowerCase();
     const element = document.createElement('a');
-    const file = new Blob([`Recovery Phrase (KEEP SECURE!):\n\n${seedPhrase}`], {type: 'text/plain'});
+    const file = new Blob([`Recovery Phrase (KEEP SECURE!):\n\n${seedPhrase}\n\nWallet: ${walletName}`], {type: 'text/plain'});
     element.href = URL.createObjectURL(file);
-    element.download = 'recovery-phrase.txt';
+    element.download = `${formattedWalletName}-recovery-phrase.txt`;
     document.body.appendChild(element);
     element.click();
     document.body.removeChild(element);
     
     toast({
-      title: "Seed Phrase Downloaded",
-      description: "Recovery phrase downloaded. Store it in a secure location!",
+      title: "Seed Phrase İndirildi",
+      description: `"${walletName}" cüzdanı için recovery phrase indirildi. Güvenli bir yerde saklayın!`,
       variant: "default"
     });
   };
