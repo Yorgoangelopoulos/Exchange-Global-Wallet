@@ -94,22 +94,24 @@ const LockScreen = ({ onUnlock }: LockScreenProps) => {
           transition={{ delay: 0.5, duration: 0.5 }}
         >
           <div className="relative">
-            <Input
-              type={showPassword ? "text" : "password"}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Type your password..."
-              className="bg-transparent border-t-0 border-x-0 border-b-2 border-gray-700 rounded-none focus:border-blue-500 focus:bg-transparent focus:outline-none py-2 pl-8 pr-10 text-white placeholder:text-gray-500"
-              autoFocus
-            />
-            <Eye className="absolute left-0 top-3 h-5 w-5 text-gray-500" />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-0 top-3 text-gray-500 hover:text-gray-300 transition-colors"
-            >
-              {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-            </button>
+            <div className="relative bg-transparent border-t-0 border-x-0 border-b-2 border-gray-700 rounded-none focus-within:border-blue-500 py-2 pl-8 pr-10">
+              <Eye className="absolute left-0 top-3 h-5 w-5 text-gray-500" />
+              <input 
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Type your password..."
+                className="w-full bg-transparent border-none focus:outline-none text-white placeholder:text-gray-500"
+                autoFocus
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-0 top-3 text-gray-500 hover:text-gray-300 transition-colors"
+              >
+                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+              </button>
+            </div>
           </div>
           
           <motion.button
