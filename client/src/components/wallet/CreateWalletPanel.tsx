@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { generateMnemonic, generateWalletAddress } from '@/lib/wallet-service';
+import { apiRequest } from '@/lib/queryClient';
 
 interface CreateWalletPanelProps {
   onClose: () => void;
@@ -85,15 +86,18 @@ const CreateWalletPanel = ({ onClose, onWalletCreated }: CreateWalletPanelProps)
       
       // Now create the wallet on the server with API call
       try {
-        const response = await fetch('/api/wallet/create', {
+        const response = await apiRequest('/api/wallet/create', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
           body: JSON.stringify({
             name: walletName,
             mnemonic: seedPhrase,
-            type: 'local'
+            type: 'local',
+            addresses: [
+              { currency: 'BTC', address: btcWallet.address, path: btcWallet.path },
+              { currency: 'ETH', address: ethWallet.address, path: ethWallet.path },
+              { currency: 'SOL', address: solWallet.address, path: solWallet.path },
+              { currency: 'TRX', address: trxWallet.address, path: trxWallet.path }
+            ]
           })
         });
         

@@ -114,16 +114,51 @@ const WalletSwitcher = () => {
     setShowDeleteConfirm(null);
   };
   
-  const handleCreateWallet = (name: string) => {
-    const newWallet = createWallet(name);
-    setActiveWallet(newWallet.id);
-    setShowCreatePanel(false);
+  const handleCreateWallet = async (name: string) => {
+    try {
+      // In the createWallet function, we now need to pass the mnemonic
+      // But it's already generated in the CreateWalletPanel component
+      // We're just passing the name here, and the panel handles the full creation
+      setShowCreatePanel(false);
+      
+      toast({
+        title: "Creating Wallet",
+        description: "Your wallet is being created and addresses are being generated...",
+        variant: "default"
+      });
+      
+      // We'll handle the actual wallet creation in the CreateWalletPanel
+      // And update the active wallet after the backend confirms creation
+    } catch (error) {
+      console.error("Error creating wallet:", error);
+      toast({
+        title: "Wallet Creation Error",
+        description: `There was an error creating the wallet: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        variant: "destructive"
+      });
+    }
   };
   
-  const handleImportWallet = (name: string) => {
-    const newWallet = importWallet(name, 'mnemonic');
-    setActiveWallet(newWallet.id);
-    setShowImportPanel(false);
+  const handleImportWallet = async (name: string) => {
+    try {
+      setShowImportPanel(false);
+      
+      toast({
+        title: "Importing Wallet",
+        description: "Your wallet is being imported and addresses are being derived...",
+        variant: "default"
+      });
+      
+      // We'll handle the actual wallet import in the ImportWalletPanel
+      // And update the active wallet after the backend confirms import
+    } catch (error) {
+      console.error("Error importing wallet:", error);
+      toast({
+        title: "Wallet Import Error",
+        description: `There was an error importing the wallet: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        variant: "destructive"
+      });
+    }
   };
   
   const getWalletTypeIcon = (wallet: WalletInfo) => {
