@@ -9,6 +9,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { validateMnemonic, generateWalletAddress } from '@/lib/wallet-service';
+import { apiRequest } from '@/lib/queryClient';
 
 interface ImportWalletPanelProps {
   onClose: () => void;
@@ -35,7 +36,7 @@ const ImportWalletPanel = ({ onClose, onWalletImported }: ImportWalletPanelProps
     return /^[0-9a-fA-F]{64}$/.test(key);
   };
 
-  const handleImport = () => {
+  const handleImport = async () => {
     // Basic validation
     if (!walletName) {
       toast({
@@ -69,7 +70,7 @@ const ImportWalletPanel = ({ onClose, onWalletImported }: ImportWalletPanelProps
     try {
       // Generate addresses for main cryptocurrencies from the mnemonic
       if (activeTab === 'mnemonic') {
-        // Generate addresses for each cryptocurrency
+        // Generate addresses for each cryptocurrency to verify the mnemonic
         const btcWallet = generateWalletAddress(mnemonicPhrase, 'btc');
         const ethWallet = generateWalletAddress(mnemonicPhrase, 'eth');
         const solWallet = generateWalletAddress(mnemonicPhrase, 'sol');
@@ -80,15 +81,39 @@ const ImportWalletPanel = ({ onClose, onWalletImported }: ImportWalletPanelProps
         console.log('Solana address:', solWallet.address);
         console.log('Tron address:', trxWallet.address);
         
-        // Here we would actually save the wallet details to the backend API
+        // Save the wallet details to the backend API
+        const response = await apiRequest('/api/wallet/import', {
+          method: 'POST',
+          body: JSON.stringify({
+            name: walletName,
+            importMethod: 'mnemonic',
+            credentials: mnemonicPhrase
+          })
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Server error: ${response.status}`);
+        }
+        
         toast({
           title: "Wallet Imported Successfully",
           description: `Your wallet "${walletName}" has been imported with derived cryptocurrency addresses.`,
           variant: "default"
         });
       } else if (activeTab === 'privateKey') {
-        // Handle private key import (in a real app, we would derive the address from the key)
-        console.log('Importing wallet with private key...');
+        // Import wallet with private key
+        const response = await apiRequest('/api/wallet/import', {
+          method: 'POST',
+          body: JSON.stringify({
+            name: walletName,
+            importMethod: 'privateKey',
+            credentials: privateKey
+          })
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Server error: ${response.status}`);
+        }
         
         toast({
           title: "Wallet Imported Successfully",

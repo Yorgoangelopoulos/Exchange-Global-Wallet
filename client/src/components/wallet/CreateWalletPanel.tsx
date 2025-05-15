@@ -51,7 +51,7 @@ const CreateWalletPanel = ({ onClose, onWalletCreated }: CreateWalletPanelProps)
     });
   };
 
-  const handleCreateWallet = () => {
+  const handleCreateWallet = async () => {
     if (!walletName.trim()) {
       toast({
         title: "Wallet Name Required",
@@ -72,7 +72,7 @@ const CreateWalletPanel = ({ onClose, onWalletCreated }: CreateWalletPanelProps)
     
     // Create real cryptocurrency addresses from the seed
     try {
-      // Generate addresses for main cryptocurrencies
+      // Generate addresses for main cryptocurrencies first to verify seed phrase works
       const btcWallet = generateWalletAddress(seedPhrase, 'btc');
       const ethWallet = generateWalletAddress(seedPhrase, 'eth');
       const solWallet = generateWalletAddress(seedPhrase, 'sol');
@@ -83,14 +83,37 @@ const CreateWalletPanel = ({ onClose, onWalletCreated }: CreateWalletPanelProps)
       console.log('Solana address:', solWallet.address);
       console.log('Tron address:', trxWallet.address);
       
-      onWalletCreated(walletName);
-      onClose();
-      
-      toast({
-        title: "Wallet Created",
-        description: `Your new wallet "${walletName}" has been created successfully with real cryptocurrency addresses.`,
-        variant: "default"
-      });
+      // Now create the wallet on the server with API call
+      try {
+        const response = await fetch('/api/wallet/create', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            name: walletName,
+            mnemonic: seedPhrase,
+            type: 'local'
+          })
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Server error: ${response.status}`);
+        }
+        
+        // Call the parent component callback
+        onWalletCreated(walletName);
+        onClose();
+        
+        toast({
+          title: "Wallet Created",
+          description: `Your new wallet "${walletName}" has been created successfully with real cryptocurrency addresses.`,
+          variant: "default"
+        });
+      } catch (apiError) {
+        console.error('API error creating wallet:', apiError);
+        throw apiError;
+      }
     } catch (error) {
       console.error('Error creating wallet addresses:', error);
       
