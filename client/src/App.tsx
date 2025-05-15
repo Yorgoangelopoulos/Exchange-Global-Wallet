@@ -7,14 +7,16 @@ import NotFound from "@/pages/not-found";
 import WalletPage from "@/pages/wallet";
 import CurrencyDetailPage from "@/pages/wallet/currency";
 import SettingsPage from "@/pages/wallet/settings";
+import PortfolioPage from "@/pages/wallet/portfolio";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={WalletPage} />
       <Route path="/wallet" component={WalletPage} />
-      <Route path="/wallet/:id" component={CurrencyDetailPage} />
+      <Route path="/wallet/portfolio" component={PortfolioPage} />
       <Route path="/wallet/settings" component={SettingsPage} />
+      <Route path="/wallet/:id" component={CurrencyDetailPage} />
       <Route component={NotFound} />
     </Switch>
   );

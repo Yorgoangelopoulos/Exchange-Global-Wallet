@@ -68,37 +68,7 @@ const Dashboard = () => {
         <NavigationBar />
         
         <div className="container mx-auto px-4 py-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <Card className="bg-gray-900/60 backdrop-blur-md border-gray-800 md:col-span-1">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-xl text-gray-100">Portfolio Value</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <h2 className="text-3xl font-bold text-white">
-                    ${portfolioValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </h2>
-                </CardContent>
-              </Card>
-              
-              <Card className="bg-gray-900/60 backdrop-blur-md border-gray-800 md:col-span-2">
-                <CardContent className="py-4">
-                  <PortfolioChart data={wallet.balances.map(balance => {
-                    const currency = wallet.currencies.find(c => c.id === balance.currencyId);
-                    const price = prices.find(p => p.id === balance.currencyId)?.price || 0;
-                    return {
-                      name: currency?.symbol || '',
-                      value: balance.amount * price
-                    };
-                  })} />
-                </CardContent>
-              </Card>
-            </div>
-          </motion.div>
+
           
           <motion.div
             initial={{ opacity: 0, y: 20 }}
