@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { CryptoCurrency, Balance, Transaction } from '@shared/schema';
 
 // Initial wallet data - in a real app, this would come from a database or local storage
@@ -103,12 +103,39 @@ interface WalletState {
 
 // Hook for wallet operations
 export const useWallet = () => {
+  const { activeWalletId } = useWallets();
+  
   const [wallet, setWallet] = useState<WalletState>({
     currencies: initialCurrencies,
     balances: initialBalances,
     transactions: initialTransactions,
     favorites: initialFavorites
   });
+  
+  // Update wallet data when active wallet changes
+  useEffect(() => {
+    // In a real app, we would fetch the wallet data from the API
+    // For now, we'll simulate different wallet data based on the active wallet ID
+    if (activeWalletId) {
+      console.log(`Loading data for wallet ID: ${activeWalletId}`);
+      
+      // This would be an API call in a real app
+      // For now, we'll just modify some balances to simulate different wallets
+      const walletIdNum = parseInt(activeWalletId);
+      
+      // Adjust balances based on wallet ID to simulate different wallets
+      const adjustedBalances = initialBalances.map(balance => ({
+        ...balance,
+        // Modify amount based on wallet ID (this is just for simulation)
+        amount: (parseFloat(balance.amount) * (walletIdNum % 5 + 1) / 3).toFixed(2)
+      }));
+      
+      setWallet(prev => ({
+        ...prev,
+        balances: adjustedBalances
+      }));
+    }
+  }, [activeWalletId]);
   
   // Function to toggle a cryptocurrency as favorite
   const toggleFavorite = (currencyId: string) => {

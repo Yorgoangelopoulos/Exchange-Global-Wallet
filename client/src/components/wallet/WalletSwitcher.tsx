@@ -85,8 +85,8 @@ const WalletSwitcher = () => {
   const handleDelete = (walletId: string) => {
     if (wallets.length <= 1) {
       toast({
-        title: "Cannot Delete Wallet",
-        description: "You must have at least one wallet.",
+        title: "Cüzdan Silinemedi",
+        description: "En az bir cüzdan bulunmalıdır.",
         variant: "destructive"
       });
       return;
