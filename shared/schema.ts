@@ -1,4 +1,4 @@
-import { pgTable, text, serial, numeric, timestamp, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, numeric, timestamp, boolean, integer } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -19,7 +19,7 @@ export const cryptocurrencies = pgTable("cryptocurrencies", {
   iconUrl: text("icon_url"), // URL to the cryptocurrency icon
   color: text("color"), // Brand color for UI (hex code)
   isActive: boolean("is_active").default(true), // Whether this currency is enabled
-  sortOrder: integer("sort_order") // Order for display
+  sortOrder: serial("sort_order") // Order for display
 });
 
 // Wallets table to store created/imported wallets
