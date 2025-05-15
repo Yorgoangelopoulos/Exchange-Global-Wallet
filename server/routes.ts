@@ -126,7 +126,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     } else {
       // Generate addresses for supported cryptocurrencies
-      const currencies = ['BTC', 'ETH', 'SOL', 'TRX', 'ADA'];
+      const currencies = ['bitcoin', 'ethereum', 'solana', 'tron', 'cardano'];
       
       for (const currency of currencies) {
         try {
