@@ -104,10 +104,10 @@ const CreateWalletPanel = ({ onClose, onWalletCreated }: CreateWalletPanelProps)
       onClick={onClose}
     >
       <motion.div 
-        className="bg-gray-900 border border-gray-800 rounded-lg shadow-2xl w-full max-w-xl overflow-hidden"
-        initial={{ scale: 0.9, y: 20 }}
+        className="bg-gray-900 border border-gray-800 rounded-lg shadow-2xl w-full max-w-xl overflow-hidden my-auto"
+        initial={{ scale: 0.9, y: 0 }}
         animate={{ scale: 1, y: 0 }}
-        exit={{ scale: 0.9, y: 20 }}
+        exit={{ scale: 0.9, y: 0 }}
         transition={{ type: "spring", damping: 25, stiffness: 300 }}
         onClick={(e) => e.stopPropagation()}
       >
