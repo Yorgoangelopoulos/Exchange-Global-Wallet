@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { CryptoCurrency, Balance, Transaction, Wallet } from '@shared/schema';
 import { apiRequest } from '@/lib/queryClient';
+import { useWalletContext } from '@/context/WalletContext';
 
 export interface WalletInfo {
   id: string;
@@ -16,7 +17,7 @@ export const useWallets = () => {
   const [wallets, setWallets] = useState<WalletInfo[]>([]);
   const [walletsLoaded, setWalletsLoaded] = useState(false);
   
-  const [activeWalletId, setActiveWalletId] = useState<string>('');
+  const { activeWalletId, setActiveWalletId } = useWalletContext();
   
   // Fetch wallets from API
   const fetchWallets = useCallback(async () => {
