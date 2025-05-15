@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { CryptoCurrency } from '@shared/schema';
-import QRCode from 'qrcode.react';
+import { QRCodeSVG } from 'qrcode.react';
 
 interface SendReceivePanelProps {
   currency: CryptoCurrency;
@@ -174,7 +174,7 @@ const SendReceivePanel = ({ currency, balance, onClose }: SendReceivePanelProps)
           <TabsContent value="receive" className="p-6">
             <div className="space-y-4 flex flex-col items-center">
               <div className="bg-white p-4 rounded-lg">
-                <QRCode value={walletAddress} size={200} />
+                <QRCodeSVG value={walletAddress} size={200} />
               </div>
               
               <div className="w-full">
