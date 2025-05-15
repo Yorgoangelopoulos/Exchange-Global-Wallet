@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
 import { CryptoCurrency, Balance, Transaction, Wallet } from '@shared/schema';
-import { useWallet } from './use-wallet';
 import { apiRequest } from '@/lib/queryClient';
 
 export interface WalletInfo {
