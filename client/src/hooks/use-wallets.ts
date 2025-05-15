@@ -178,9 +178,13 @@ export const useWallets = () => {
         throw new Error('Invalid wallet ID');
       }
       
-      await apiRequest(`/api/wallet/${walletId}`, {
+      const response = await apiRequest(`/api/wallet/${numericId}`, {
         method: 'DELETE'
       });
+      
+      if (!response.success) {
+        throw new Error('Failed to delete wallet');
+      }
       
       // Update local state and handle active wallet change if needed
       setWallets(prevWallets => {

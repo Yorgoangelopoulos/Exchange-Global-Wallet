@@ -426,6 +426,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
       ]
     });
   }));
+  
+  // API Route - Delete a wallet
+  app.delete('/api/wallet/:walletId', asyncHandler(async (req: Request, res: Response) => {
+    const walletId = parseInt(req.params.walletId);
+    
+    if (isNaN(walletId)) {
+      return res.status(400).json({ error: "Invalid wallet ID" });
+    }
+    
+    // Check if the user has more than one wallet before deleting
+    const userId = 1; // In production, this would come from the session
+    const userWallets = await storage.getWalletsByUserId(userId);
+    
+    if (userWallets.length <= 1) {
+      return res.status(400).json({ 
+        error: "Cannot delete the only wallet", 
+        message: "You must have at least one wallet" 
+      });
+    }
+    
+    // Attempt to delete the wallet
+    const success = await storage.deleteWallet(walletId);
+    
+    if (success) {
+      res.json({ success: true });
+    } else {
+      res.status(404).json({ error: "Wallet not found or could not be deleted" });
+    }
+  }));
 
   // Error handling middleware
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
