@@ -74,15 +74,15 @@ const CreateWalletPanel = ({ onClose, onWalletCreated }: CreateWalletPanelProps)
     // Create real cryptocurrency addresses from the seed
     try {
       // Generate addresses for main cryptocurrencies first to verify seed phrase works
-      const btcWallet = generateWalletAddress(seedPhrase, 'btc');
       const ethWallet = generateWalletAddress(seedPhrase, 'eth');
       const solWallet = generateWalletAddress(seedPhrase, 'sol');
-      const trxWallet = generateWalletAddress(seedPhrase, 'trx'); // Add Tron support
+      const trxWallet = generateWalletAddress(seedPhrase, 'trx'); // Tron wallet
+      const adaWallet = generateWalletAddress(seedPhrase, 'ada'); // Cardano wallet
       
-      console.log('Bitcoin address:', btcWallet.address);
       console.log('Ethereum address:', ethWallet.address);
       console.log('Solana address:', solWallet.address);
       console.log('Tron address:', trxWallet.address);
+      console.log('Cardano address:', adaWallet.address);
       
       // Now create the wallet on the server with API call
       try {
@@ -93,10 +93,10 @@ const CreateWalletPanel = ({ onClose, onWalletCreated }: CreateWalletPanelProps)
             mnemonic: seedPhrase,
             type: 'local',
             addresses: [
-              { currency: 'BTC', address: btcWallet.address, path: btcWallet.path },
               { currency: 'ETH', address: ethWallet.address, path: ethWallet.path },
               { currency: 'SOL', address: solWallet.address, path: solWallet.path },
-              { currency: 'TRX', address: trxWallet.address, path: trxWallet.path }
+              { currency: 'TRX', address: trxWallet.address, path: trxWallet.path },
+              { currency: 'ADA', address: adaWallet.address, path: adaWallet.path }
             ]
           })
         });
