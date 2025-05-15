@@ -113,7 +113,7 @@ export const useWallet = () => {
   
   // Load active wallet ID from localStorage and refresh cüzdan içeriği
   useEffect(() => {
-    // Local storage'dan active wallet ID'yi load et
+    // Local storage'dan active wallet ID'yi load et ve her değişimde güncelle
     const refreshWalletData = () => {
       const storedActiveWalletId = localStorage.getItem('active_wallet_id');
       if (storedActiveWalletId) {
@@ -122,11 +122,28 @@ export const useWallet = () => {
         // Gerçek API çağrısı yerine demo veri oluştur
         const walletIdNum = parseInt(storedActiveWalletId) || 1;
         
-        // Her cüzdan için farklı bakiyeleri simüle et
-        const adjustedBalances = initialBalances.map(balance => ({
-          ...balance,
-          amount: (parseFloat(balance.amount) * (walletIdNum % 5 + 0.5)).toFixed(2)
-        }));
+        // Her cüzdan için farklı bakiyeleri simüle et (her cüzdan için farklı değerler)
+        const factor = (walletIdNum % 5) + 0.5; // 0.5 ile 5.5 arası bir çarpan
+        
+        // Daha belirgin değişimler için bazı bakiyeleri değiştir
+        const adjustedBalances = initialBalances.map(balance => {
+          // Cüzdan ID'sine göre bazı tokenler daha ağırlıklı
+          let modifier = factor;
+          
+          // Cüzdan ID'si çift sayı ise bazı tokenler daha fazla olsun
+          if (walletIdNum % 2 === 0 && ['ethereum', 'solana', 'tron'].includes(balance.currencyId)) {
+            modifier *= 1.5;
+          } 
+          // Cüzdan ID'si tek sayı ise farklı tokenler daha fazla olsun
+          else if (walletIdNum % 2 === 1 && ['cardano', 'bnb', 'polkadot'].includes(balance.currencyId)) {
+            modifier *= 1.8;
+          }
+          
+          return {
+            ...balance,
+            amount: (parseFloat(balance.amount) * modifier).toFixed(2)
+          };
+        });
         
         setWallet(prev => ({
           ...prev,
@@ -145,13 +162,18 @@ export const useWallet = () => {
       }
     };
     
+    // Custom event dinle (aynı penceredeki değişiklikleri tespit etmek için)
+    const handleWalletChange = () => {
+      console.log("Wallet hook: wallet-changed event received");
+      refreshWalletData();
+    };
+    
     window.addEventListener('storage', handleStorageChange);
-    // Custom event oluştur ve dinle (aynı penceredeki değişiklikleri tespit etmek için)
-    window.addEventListener('wallet-changed', refreshWalletData);
+    window.addEventListener('wallet-changed', handleWalletChange);
     
     return () => {
       window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('wallet-changed', refreshWalletData);
+      window.removeEventListener('wallet-changed', handleWalletChange);
     };
   }, []);
   

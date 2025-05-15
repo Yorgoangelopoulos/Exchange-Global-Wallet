@@ -16,6 +16,19 @@ const Dashboard = () => {
   const { wallet, toggleFavorite } = useWallet();
   const { prices } = useCryptoPrice();
   const [activeView, setActiveView] = useState('all'); // 'all', 'favorites'
+  const [forceUpdate, setForceUpdate] = useState(0);
+  
+  // Cüzdan değişikliklerini dinle ve zorunlu yeniden render yap
+  useEffect(() => {
+    const handleWalletChange = () => {
+      console.log("Dashboard: Wallet changed event received");
+      // Force rerender
+      setForceUpdate(prev => prev + 1);
+    };
+    
+    window.addEventListener('wallet-changed', handleWalletChange);
+    return () => window.removeEventListener('wallet-changed', handleWalletChange);
+  }, []);
   
   // Portfolio total value calculation
   const portfolioValue = wallet.balances.reduce((total, balance) => {

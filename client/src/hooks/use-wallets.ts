@@ -55,6 +55,10 @@ export const useWallets = () => {
       };
       setWallets([defaultWallet]);
       setActiveWalletId(defaultWallet.id);
+      
+      // Sistem geneline değişikliği bildir
+      localStorage.setItem('active_wallet_id', defaultWallet.id);
+      window.dispatchEvent(new Event('wallet-changed'));
     } finally {
       setWalletsLoaded(true);
     }
