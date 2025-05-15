@@ -71,11 +71,11 @@ const CryptoCard = ({
             </button>
             
             <div className="flex items-center mb-4">
-              <div className="w-10 h-10 mr-3 flex items-center justify-center bg-gray-800 rounded-full">
+              <div className="crypto-icon-container mr-3">
                 <img
                   src={`https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@master/svg/color/${currency.symbol.toLowerCase()}.svg`}
                   alt={currency.name}
-                  className="w-6 h-6"
+                  className="crypto-icon"
                   onError={(e) => {
                     // Fallback if the icon is not available
                     const target = e.target as HTMLImageElement;
