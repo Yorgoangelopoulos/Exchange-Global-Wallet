@@ -3,25 +3,31 @@ import { CryptoCurrency, Balance, Transaction } from '@shared/schema';
 
 // Initial wallet data - in a real app, this would come from a database or local storage
 const initialCurrencies: CryptoCurrency[] = [
-  { id: 'bitcoin', name: 'Bitcoin', symbol: 'BTC' },
-  { id: 'ethereum', name: 'Ethereum', symbol: 'ETH' },
-  { id: 'solana', name: 'Solana', symbol: 'SOL' },
-  { id: 'avalanche', name: 'Avalanche', symbol: 'AVAX' },
-  { id: 'monero', name: 'Monero', symbol: 'XMR' },
-  { id: 'tether', name: 'Tether', symbol: 'USDT' },
-  { id: 'binancecoin', name: 'BNB', symbol: 'BNB' },
-  { id: 'ripple', name: 'XRP', symbol: 'XRP' }
+  { id: 'bitcoin', name: 'Bitcoin', symbol: 'BTC', description: null },
+  { id: 'ethereum', name: 'Ethereum', symbol: 'ETH', description: null },
+  { id: 'solana', name: 'Solana', symbol: 'SOL', description: null },
+  { id: 'tron', name: 'TRON', symbol: 'TRX', description: null },
+  { id: 'avalanche', name: 'Avalanche', symbol: 'AVAX', description: null },
+  { id: 'cardano', name: 'Cardano', symbol: 'ADA', description: null },
+  { id: 'tether', name: 'Tether', symbol: 'USDT', description: null },
+  { id: 'bnb', name: 'BNB', symbol: 'BNB', description: null },
+  { id: 'xrp', name: 'XRP', symbol: 'XRP', description: null },
+  { id: 'polkadot', name: 'Polkadot', symbol: 'DOT', description: null },
+  { id: 'dogecoin', name: 'Dogecoin', symbol: 'DOGE', description: null }
 ];
 
 const initialBalances: Balance[] = [
-  { currencyId: 'bitcoin', amount: 0.15 },
-  { currencyId: 'ethereum', amount: 2.5 },
-  { currencyId: 'solana', amount: 35.75 },
-  { currencyId: 'avalanche', amount: 12.35 },
-  { currencyId: 'monero', amount: 0.8 },
-  { currencyId: 'tether', amount: 250.50 },
-  { currencyId: 'binancecoin', amount: 1.75 },
-  { currencyId: 'ripple', amount: 500 }
+  { currencyId: 'bitcoin', amount: "0.15" },
+  { currencyId: 'ethereum', amount: "2.5" },
+  { currencyId: 'solana', amount: "35.75" },
+  { currencyId: 'tron', amount: "1500" },
+  { currencyId: 'avalanche', amount: "12.35" },
+  { currencyId: 'cardano', amount: "450" },
+  { currencyId: 'tether', amount: "250.50" },
+  { currencyId: 'bnb', amount: "1.75" },
+  { currencyId: 'xrp', amount: "500" },
+  { currencyId: 'polkadot', amount: "25" },
+  { currencyId: 'dogecoin', amount: "1200" }
 ];
 
 const initialTransactions: Transaction[] = [
@@ -29,8 +35,8 @@ const initialTransactions: Transaction[] = [
     id: 't1', 
     currencyId: 'bitcoin', 
     type: 'receive', 
-    amount: 0.05, 
-    timestamp: new Date(Date.now() - 3600000).toISOString(), 
+    amount: "0.05", 
+    timestamp: new Date(Date.now() - 3600000), 
     address: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa',
     confirmed: true
   },
@@ -38,8 +44,8 @@ const initialTransactions: Transaction[] = [
     id: 't2', 
     currencyId: 'ethereum', 
     type: 'send', 
-    amount: 0.75, 
-    timestamp: new Date(Date.now() - 86400000).toISOString(), 
+    amount: "0.75", 
+    timestamp: new Date(Date.now() - 86400000), 
     address: '0x71C7656EC7ab88b098defB751B7401B5f6d8976F',
     confirmed: true
   },
@@ -47,27 +53,27 @@ const initialTransactions: Transaction[] = [
     id: 't3', 
     currencyId: 'solana', 
     type: 'receive', 
-    amount: 10.5, 
-    timestamp: new Date(Date.now() - 172800000).toISOString(), 
+    amount: "10.5", 
+    timestamp: new Date(Date.now() - 172800000), 
     address: 'EbmJMY9GhQbVfEuPpKJMc9U4BhNoP6kLZE9mfNkhHAeZ',
     confirmed: true
   },
   { 
     id: 't4', 
-    currencyId: 'ethereum', 
+    currencyId: 'tron', 
     type: 'receive', 
-    amount: 1.25, 
-    timestamp: new Date(Date.now() - 259200000).toISOString(), 
-    address: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
+    amount: "500", 
+    timestamp: new Date(Date.now() - 259200000), 
+    address: 'TJYeasTPa6cx4x6UZCaEXnGQiVCty59961',
     confirmed: true
   },
   { 
     id: 't5', 
-    currencyId: 'bitcoin', 
-    type: 'send', 
-    amount: 0.02, 
-    timestamp: new Date(Date.now() - 345600000).toISOString(), 
-    address: '3FZbgi29cpjq2GjdwV8eyHuJJnkLtktZc5',
+    currencyId: 'tron', 
+    type: 'receive', 
+    amount: "1000", 
+    timestamp: new Date(Date.now() - 345600000), 
+    address: 'TJYeasTPa6cx4x6UZCaEXnGQiVCty59961',
     confirmed: true
   }
 ];

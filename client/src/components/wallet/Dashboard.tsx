@@ -20,7 +20,7 @@ const Dashboard = () => {
   // Portfolio total value calculation
   const portfolioValue = wallet.balances.reduce((total, balance) => {
     const currencyPrice = prices.find(p => p.id === balance.currencyId)?.price || 0;
-    return total + (balance.amount * currencyPrice);
+    return total + (parseFloat(balance.amount) * currencyPrice);
   }, 0);
   
   // List of cryptocurrencies with balances and prices
@@ -98,7 +98,7 @@ const Dashboard = () => {
                   <motion.div key={item.currency.id} variants={itemVariants}>
                     <CryptoCard
                       currency={item.currency}
-                      balance={item.balance}
+                      balance={parseFloat(item.balance)}
                       price={item.price}
                       priceChange24h={item.priceChange24h}
                       isFavorite={item.isFavorite}
