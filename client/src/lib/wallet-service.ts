@@ -16,8 +16,23 @@ const NETWORKS = {
 };
 
 // Generate a mnemonic (seed phrase)
+// Generate mnemonic with proper randomness - browser compatible version
 export function generateMnemonic(strength: 128 | 256 = 128): string {
-  return bip39.generateMnemonic(strength);
+  // Define a list of words for the mnemonic
+  const words = bip39.wordlists.english;
+  
+  // Generate random indices for selecting words
+  const indices: number[] = [];
+  const wordCount = strength === 128 ? 12 : 24;
+  
+  for (let i = 0; i < wordCount; i++) {
+    // Generate random index between 0 and words.length-1
+    const randomIndex = Math.floor(Math.random() * words.length);
+    indices.push(randomIndex);
+  }
+  
+  // Create mnemonic from selected words
+  return indices.map(index => words[index]).join(' ');
 }
 
 // Validate mnemonic
