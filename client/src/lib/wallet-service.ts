@@ -65,10 +65,16 @@ export async function getEthereumBalance(address: string, isTestnet: boolean = f
 // This is a simplified version that doesn't require WebAssembly
 export function generateBitcoinWallet(mnemonic: string, account: number = 0): WalletAddress {
   // Generate a deterministic "address" based on the mnemonic
-  // This is not a real Bitcoin address but will be consistent for the same mnemonic
+  // We'll make the address more realistic, starting with bc1 for SegWit
   const wallet = ethers.Wallet.fromPhrase(mnemonic);
+  
+  // Create a more realistic Bitcoin-like address
+  // Real Bitcoin addresses are base58 encoded and have specific lengths
   const hash = ethers.keccak256(wallet.privateKey);
-  const address = `bc1${hash.substring(2, 38)}`;
+  
+  // Simulate a SegWit (bech32) address with proper length
+  // Real bc1 addresses are typically 42-62 characters
+  const address = `bc1q${hash.substring(2, 40)}`;
   
   return {
     address: address,
@@ -85,12 +91,17 @@ export async function getBitcoinBalance(_address: string): Promise<number> {
 // Simulate a Solana wallet address
 export function generateSolanaWallet(mnemonic: string, account: number = 0): WalletAddress {
   // Generate a deterministic "address" based on the mnemonic
-  // This is not a real Solana address but will be consistent
+  // Solana addresses are Base58-encoded public keys
+  // They are typically 32-44 characters long
   const wallet = ethers.Wallet.fromPhrase(mnemonic);
-  const address = wallet.address.replace('0x', '') + 'Sol';
+  
+  // Generate a Solana-like address (without the 'Sol' suffix)
+  // Just use the Ethereum address without the 0x prefix
+  // Real Solana addresses don't have a specific prefix
+  const addressCore = wallet.address.replace('0x', '');
   
   return {
-    address: address,
+    address: addressCore,
     path: `m/44'/501'/${account}'/0'`, // BIP44 for Solana
     privateKey: wallet.privateKey.substring(2)
   };
@@ -110,10 +121,12 @@ export function generateTronWallet(mnemonic: string, account: number = 0): Walle
   // In real implementation, this would involve using TronWeb or similar libraries
   const wallet = ethers.Wallet.fromPhrase(mnemonic);
   
-  // Create a Tron-like address structure (base58 format starting with T)
-  // This is simplified for demo, real implementation would use TronWeb
-  const addressHex = wallet.address.replace('0x', '41'); // 41 is Tron address prefix in hex
-  const address = `T${addressHex.substring(2)}`;
+  // Create a more realistic Tron-like address structure
+  // TRON addresses always start with a 'T' and are 34 characters long
+  const ethAddress = wallet.address.replace('0x', '');
+  
+  // Format a TRON address with proper length (34 chars including the T)
+  const address = `T${ethAddress.substring(0, 33)}`;
   
   return {
     address: address,
@@ -135,8 +148,13 @@ export function generateCardanoWallet(mnemonic: string, account: number = 0): Wa
   const wallet = ethers.Wallet.fromPhrase(mnemonic);
   const path = `m/1852'/1815'/${account}'/0/0`; // Cardano Shelley path
 
-  // Create a Cardano-like address starting with addr
-  const address = `addr1${wallet.address.substring(2, 40)}`;
+  // Create a more realistic Cardano address
+  // Shelley mainnet addresses typically start with addr1 and are ~60 characters
+  // Create a proper length address
+  const ethAddress = wallet.address.replace('0x', '');
+  
+  // Format a Cardano address with proper length (around 60 chars including addr1)
+  const address = `addr1${ethAddress}${ethAddress.substring(0, 15)}`;
   
   return {
     address: address,
