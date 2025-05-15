@@ -129,6 +129,27 @@ export async function getTronBalance(address: string, isTestnet: boolean = false
   return 0;
 }
 
+// Generate Cardano Wallet Address (Simulated)
+export function generateCardanoWallet(mnemonic: string, account: number = 0): WalletAddress {
+  // For demo purposes, we'll create a deterministic address
+  const wallet = ethers.Wallet.fromPhrase(mnemonic);
+  const path = `m/1852'/1815'/${account}'/0/0`; // Cardano Shelley path
+
+  // Create a Cardano-like address starting with addr
+  const address = `addr1${wallet.address.substring(2, 40)}`;
+  
+  return {
+    address: address,
+    path,
+    privateKey: wallet.privateKey.substring(2)
+  };
+}
+
+// Get Cardano balance (Simulated)
+export async function getCardanoBalance(_address: string): Promise<number> {
+  return 0; // Simulated balance for now
+}
+
 // Generate a wallet address for a specific currency
 export function generateWalletAddress(mnemonic: string, currency: string, account: number = 0): WalletAddress {
   switch (currency.toLowerCase()) {
@@ -147,6 +168,10 @@ export function generateWalletAddress(mnemonic: string, currency: string, accoun
     case 'trx':
     case 'tron':
       return generateTronWallet(mnemonic, account);
+      
+    case 'ada':
+    case 'cardano':
+      return generateCardanoWallet(mnemonic, account);
       
     default:
       throw new Error(`Unsupported currency: ${currency}`);
@@ -171,6 +196,10 @@ export async function getWalletBalance(address: string, currency: string, isTest
     case 'trx':
     case 'tron':
       return getTronBalance(address, isTestnet);
+      
+    case 'ada':
+    case 'cardano':
+      return getCardanoBalance(address);
       
     default:
       throw new Error(`Unsupported currency: ${currency}`);

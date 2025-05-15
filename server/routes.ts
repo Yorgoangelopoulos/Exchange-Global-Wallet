@@ -212,7 +212,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     } else if (importMethod === 'mnemonic') {
       // Generate addresses for supported cryptocurrencies from mnemonic
-      const currencies = ['BTC', 'ETH', 'SOL', 'TRX', 'ADA'];
+      const currencies = ['bitcoin', 'ethereum', 'solana', 'tron', 'cardano'];
       
       for (const currency of currencies) {
         try {
