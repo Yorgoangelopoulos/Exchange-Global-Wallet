@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
+import { validateMnemonic, generateWalletAddress } from '@/lib/wallet-service';
 
 interface ImportWalletPanelProps {
   onClose: () => void;
@@ -22,10 +23,10 @@ const ImportWalletPanel = ({ onClose, onWalletImported }: ImportWalletPanelProps
   const [privateKey, setPrivateKey] = useState('');
   const { toast } = useToast();
 
-  // Validate mnemonic by checking the word count
-  const validateMnemonic = (phrase: string) => {
+  // Validate mnemonic using bip39 library
+  const validateMnemonicPhrase = (phrase: string) => {
     const wordCount = phrase.trim().split(/\s+/).length;
-    return wordCount === parseInt(mnemonicLength);
+    return wordCount === parseInt(mnemonicLength) && validateMnemonic(phrase);
   };
 
   // Validate private key format (simple check for demo purposes)
@@ -46,7 +47,7 @@ const ImportWalletPanel = ({ onClose, onWalletImported }: ImportWalletPanelProps
     }
 
     if (activeTab === 'mnemonic') {
-      if (!validateMnemonic(mnemonicPhrase)) {
+      if (!validateMnemonicPhrase(mnemonicPhrase)) {
         toast({
           title: "Invalid Recovery Phrase",
           description: `Please enter a valid ${mnemonicLength}-word recovery phrase.`,
@@ -65,17 +66,49 @@ const ImportWalletPanel = ({ onClose, onWalletImported }: ImportWalletPanelProps
       }
     }
 
-    // In a real app, we would import the wallet using the provided credentials
-    // For this demo, we'll just show a success message
-    toast({
-      title: "Wallet Imported",
-      description: `Your wallet "${walletName}" has been successfully imported.`,
-      variant: "default"
-    });
-
-    // Call the callback function for the parent component
-    onWalletImported(walletName);
-    onClose();
+    try {
+      // Generate addresses for main cryptocurrencies from the mnemonic
+      if (activeTab === 'mnemonic') {
+        // Generate addresses for each cryptocurrency
+        const btcWallet = generateWalletAddress(mnemonicPhrase, 'btc');
+        const ethWallet = generateWalletAddress(mnemonicPhrase, 'eth');
+        const solWallet = generateWalletAddress(mnemonicPhrase, 'sol');
+        const trxWallet = generateWalletAddress(mnemonicPhrase, 'trx');
+        
+        console.log('Bitcoin address:', btcWallet.address);
+        console.log('Ethereum address:', ethWallet.address);
+        console.log('Solana address:', solWallet.address);
+        console.log('Tron address:', trxWallet.address);
+        
+        // Here we would actually save the wallet details to the backend API
+        toast({
+          title: "Wallet Imported Successfully",
+          description: `Your wallet "${walletName}" has been imported with derived cryptocurrency addresses.`,
+          variant: "default"
+        });
+      } else if (activeTab === 'privateKey') {
+        // Handle private key import (in a real app, we would derive the address from the key)
+        console.log('Importing wallet with private key...');
+        
+        toast({
+          title: "Wallet Imported Successfully",
+          description: `Your wallet "${walletName}" has been imported with private key.`,
+          variant: "default"
+        });
+      }
+      
+      // Call the callback function for the parent component
+      onWalletImported(walletName);
+      onClose();
+    } catch (error) {
+      console.error('Error importing wallet:', error);
+      
+      toast({
+        title: "Import Failed",
+        description: `Failed to import wallet: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        variant: "destructive"
+      });
+    }
   };
 
   return (

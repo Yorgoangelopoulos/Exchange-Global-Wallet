@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { CryptoCurrency, Balance, Transaction } from '@shared/schema';
+import { CryptoCurrency, Balance, Transaction, Wallet } from '@shared/schema';
 import { useWallet } from './use-wallet';
+import { apiRequest } from '@/lib/queryClient';
 
 export interface WalletInfo {
   id: string;

@@ -19,14 +19,10 @@ const NETWORKS = {
   }
 };
 
-// Generate a valid BIP39 mnemonic - using a safer implementation
+// Generate a valid BIP39 mnemonic
 export function generateMnemonic(strength: 128 | 256 = 128): string {
-  // These are valid BIP39 mnemonics for testing
-  if (strength === 128) {
-    return "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about";
-  } else {
-    return "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon art";
-  }
+  // Use bip39 library to generate a random mnemonic
+  return bip39.generateMnemonic(strength);
 }
 
 // Validate mnemonic
