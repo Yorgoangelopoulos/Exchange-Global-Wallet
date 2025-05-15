@@ -99,7 +99,7 @@ const LockScreen = ({ onUnlock }: LockScreenProps) => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Type your password..."
-              className="bg-transparent border-t-0 border-x-0 border-b-2 border-gray-700 rounded-none focus:border-blue-500 py-2 pl-8 pr-10 text-white placeholder:text-gray-500 focus:text-white"
+              className="bg-transparent border-t-0 border-x-0 border-b-2 border-gray-700 rounded-none focus:border-blue-500 focus:bg-transparent focus:outline-none py-2 pl-8 pr-10 text-white placeholder:text-gray-500"
               autoFocus
             />
             <Eye className="absolute left-0 top-3 h-5 w-5 text-gray-500" />
