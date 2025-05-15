@@ -1,5 +1,9 @@
 import { ethers } from 'ethers';
 import * as bip39 from 'bip39';
+import { Keypair } from '@solana/web3.js';
+import TronWeb from 'tronweb';
+import HDKey from 'hdkey';
+import * as bs58 from 'bs58';
 
 export type WalletAddress = {
   address: string;
@@ -61,32 +65,7 @@ export async function getEthereumBalance(address: string, isTestnet: boolean = f
   }
 }
 
-// Generate a simulated Bitcoin address from the mnemonic
-// This is a simplified version that doesn't require WebAssembly
-export function generateBitcoinWallet(mnemonic: string, account: number = 0): WalletAddress {
-  // Generate a deterministic "address" based on the mnemonic
-  // We'll make the address more realistic, starting with bc1 for SegWit
-  const wallet = ethers.Wallet.fromPhrase(mnemonic);
-  
-  // Create a more realistic Bitcoin-like address
-  // Real Bitcoin addresses are base58 encoded and have specific lengths
-  const hash = ethers.keccak256(wallet.privateKey);
-  
-  // Simulate a SegWit (bech32) address with proper length
-  // Real bc1 addresses are typically 42-62 characters
-  const address = `bc1q${hash.substring(2, 40)}`;
-  
-  return {
-    address: address,
-    path: `m/84'/0'/${account}'/0/0`, // BIP84 path for native SegWit addresses
-    privateKey: wallet.privateKey.substring(2)
-  };
-}
-
-// Simulated Bitcoin balance
-export async function getBitcoinBalance(_address: string): Promise<number> {
-  return 0; // Always return 0 balance for now
-}
+// Bitcoin has been removed as requested
 
 // Simulate a Solana wallet address
 export function generateSolanaWallet(mnemonic: string, account: number = 0): WalletAddress {
