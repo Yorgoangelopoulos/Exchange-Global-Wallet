@@ -174,23 +174,46 @@ const WalletSwitcher = () => {
     }
   };
   
-  const handleImportWallet = async (name: string) => {
+  const handleImportWallet = async (name: string, walletData: any) => {
     try {
+      // Panel'i kapat
       setShowImportPanel(false);
       
       toast({
-        title: "Importing Wallet",
-        description: "Your wallet is being imported and addresses are being derived...",
+        title: "Cüzdan İçe Aktarıldı",
+        description: `"${name}" cüzdanı başarıyla içe aktarıldı.`,
         variant: "default"
       });
       
-      // We'll handle the actual wallet import in the ImportWalletPanel
-      // And update the active wallet after the backend confirms import
+      // Yeni cüzdanın bilgilerini ekle
+      if (walletData?.wallet) {
+        const newWallet: WalletInfo = {
+          id: walletData.wallet.id.toString(),
+          name: name,
+          type: 'imported',
+          importMethod: walletData.wallet.type === 'imported_mnemonic' ? 'mnemonic' : 'privateKey',
+          isActive: false,
+          dateCreated: new Date().toISOString()
+        };
+        
+        // Update wallets
+        const updatedWallets = [...wallets, newWallet];
+        
+        // Make all wallets inactive
+        const deactivatedWallets = updatedWallets.map(w => ({
+          ...w,
+          isActive: false
+        }));
+        
+        // Update wallet list and set new wallet as active
+        setWallets(deactivatedWallets);
+        setActiveWallet(newWallet.id);
+      }
     } catch (error) {
       console.error("Error importing wallet:", error);
       toast({
-        title: "Wallet Import Error",
-        description: `There was an error importing the wallet: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        title: "İçe Aktarma Hatası",
+        description: `Cüzdan içe aktarılırken hata oluştu: ${error instanceof Error ? error.message : 'Bilinmeyen hata'}`,
         variant: "destructive"
       });
     }

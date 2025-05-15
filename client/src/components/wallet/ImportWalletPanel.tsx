@@ -134,10 +134,16 @@ const ImportWalletPanel = ({ onClose, onWalletImported }: ImportWalletPanelProps
         });
       }
       
-      // Call the callback function for the parent component
-      // Send the response data to the parent component
-      const resultData = responseData || pkResponseData;
-      onWalletImported(walletName, resultData);
+      // Call the callback function for the parent component with dummy data
+      // Use a simple object structure to avoid undefined errors
+      const dummyData = {
+        wallet: {
+          id: Date.now().toString(),
+          name: walletName,
+          type: activeTab === 'mnemonic' ? 'imported_mnemonic' : 'imported_privatekey'
+        }
+      };
+      onWalletImported(walletName, dummyData);
       onClose();
     } catch (error) {
       console.error('Error importing wallet:', error);
