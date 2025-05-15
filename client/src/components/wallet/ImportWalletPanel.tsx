@@ -13,7 +13,7 @@ import { apiRequest } from '@/lib/queryClient';
 
 interface ImportWalletPanelProps {
   onClose: () => void;
-  onWalletImported: (walletName: string) => void;
+  onWalletImported: (walletName: string, walletData: any) => void;
 }
 
 const ImportWalletPanel = ({ onClose, onWalletImported }: ImportWalletPanelProps) => {

@@ -10,6 +10,7 @@ import {
   Wallet, 
   AlertTriangle 
 } from 'lucide-react';
+import { apiRequest } from '@/lib/queryClient';
 import { useWallets, WalletInfo } from '@/hooks/use-wallets';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -123,26 +124,49 @@ const WalletSwitcher = () => {
     setShowDeleteConfirm(null);
   };
   
-  const handleCreateWallet = async (name: string) => {
+  const handleCreateWallet = async (name: string, walletData: any) => {
     try {
-      // In the createWallet function, we now need to pass the mnemonic
-      // But it's already generated in the CreateWalletPanel component
-      // We're just passing the name here, and the panel handles the full creation
+      // After CreateWalletPanel creates wallet, we need to refresh wallet list
       setShowCreatePanel(false);
       
       toast({
-        title: "Creating Wallet",
-        description: "Your wallet is being created and addresses are being generated...",
+        title: "Cüzdan Oluşturuldu",
+        description: `"${name}" cüzdanı başarıyla oluşturuldu.`,
         variant: "default"
       });
       
-      // We'll handle the actual wallet creation in the CreateWalletPanel
-      // And update the active wallet after the backend confirms creation
+      // Force a refresh of the wallet list from the server
+      const userId = 1; // This would come from authentication
+      const response = await apiRequest(`/api/wallets/${userId}`);
+      const data = await response.json();
+      
+      if (data?.wallets) {
+        const fetchedWallets: WalletInfo[] = data.wallets.map((w: any) => ({
+          id: w.id.toString(),
+          name: w.name,
+          type: w.type || 'local',
+          importMethod: w.mnemonic ? 'mnemonic' : w.privateKey ? 'privateKey' : undefined,
+          isActive: false,
+          dateCreated: w.createdAt || new Date().toISOString()
+        }));
+        
+        // Update wallets in state
+        setWallets(fetchedWallets);
+        
+        // Set created wallet as active
+        if (walletData?.wallet?.id) {
+          const newWalletId = walletData.wallet.id.toString();
+          setActiveWallet(newWalletId);
+        } else if (fetchedWallets.length > 0) {
+          // If we can't identify the new wallet, set the last one as active
+          setActiveWallet(fetchedWallets[fetchedWallets.length - 1].id);
+        }
+      }
     } catch (error) {
-      console.error("Error creating wallet:", error);
+      console.error("Error handling wallet creation:", error);
       toast({
-        title: "Wallet Creation Error",
-        description: `There was an error creating the wallet: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        title: "Wallet Ekleme Hatası",
+        description: `Cüzdan listeye eklenirken bir hata oluştu: ${error instanceof Error ? error.message : 'Bilinmeyen hata'}`,
         variant: "destructive"
       });
     }

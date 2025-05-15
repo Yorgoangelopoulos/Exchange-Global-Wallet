@@ -11,7 +11,7 @@ import { apiRequest } from '@/lib/queryClient';
 
 interface CreateWalletPanelProps {
   onClose: () => void;
-  onWalletCreated: (walletName: string) => void;
+  onWalletCreated: (walletName: string, walletData: any) => void;
 }
 
 // Generate a real-world compatible seed phrase using BIP39
@@ -116,8 +116,11 @@ const CreateWalletPanel = ({ onClose, onWalletCreated }: CreateWalletPanelProps)
           throw new Error(`Server error: ${response.status}`);
         }
         
+        // Parse response to get wallet data
+        const responseData = await response.json();
+        
         // Call the parent component callback
-        onWalletCreated(walletName);
+        onWalletCreated(walletName, responseData);
         onClose();
         
         toast({
