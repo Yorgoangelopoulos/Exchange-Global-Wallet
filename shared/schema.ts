@@ -15,7 +15,11 @@ export const cryptocurrencies = pgTable("cryptocurrencies", {
   id: text("id").primaryKey(), // e.g. 'bitcoin'
   name: text("name").notNull(), // e.g. 'Bitcoin'
   symbol: text("symbol").notNull(), // e.g. 'BTC'
-  description: text("description")
+  description: text("description"),
+  iconUrl: text("icon_url"), // URL to the cryptocurrency icon
+  color: text("color"), // Brand color for UI (hex code)
+  isActive: boolean("is_active").default(true), // Whether this currency is enabled
+  sortOrder: integer("sort_order") // Order for display
 });
 
 // Wallets table to store created/imported wallets

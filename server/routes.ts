@@ -10,6 +10,7 @@ import {
 } from "@shared/schema";
 import * as bip39 from 'bip39';
 import { generateWalletAddress } from '@/lib/wallet-service';
+import { ethers } from 'ethers';
 
 // Helper function to handle async route handlers
 const asyncHandler = (fn: Function) => (req: Request, res: Response, next: NextFunction) => {
@@ -183,6 +184,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       userId,
       type: importMethod === 'mnemonic' ? 'imported_mnemonic' : 'imported_privatekey',
       mnemonic: importMethod === 'mnemonic' ? credentials : '',
+      privateKey: importMethod === 'privateKey' ? credentials : '',
       isActive: true
     });
     
@@ -234,26 +236,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
     } else {
-      // Handle private key import - would generate address from private key
-      // This is simplified, in reality we'd need to determine which network the key is for
+      // Handle private key import - derive address from private key
       try {
-        // For example, assume it's an ETH key
-        // Normally we'd infer this from the key format
-        const currency = 'ETH';
-        const address = '0x' + credentials.slice(-40); // Simplified, would extract address from key
+        // For Ethereum private keys
+        let currency = 'ETH';
+        let address = '';
+        let privateKeyToUse = credentials;
         
-        await storage.createWalletAddress({
-          walletId: wallet.id,
-          currencyId: currency,
-          address: address,
-          path: '',
-          privateKey: ''
-        });
+        // If the private key doesn't start with 0x, add it
+        if (!privateKeyToUse.startsWith('0x')) {
+          privateKeyToUse = '0x' + privateKeyToUse;
+        }
         
-        storedAddresses.push({
-          currency,
-          address
-        });
+        try {
+          // Try to create an Ethereum wallet from this key
+          const ethWallet = new ethers.Wallet(privateKeyToUse);
+          address = ethWallet.address;
+          
+          await storage.createWalletAddress({
+            walletId: wallet.id,
+            currencyId: 'ETH',
+            address: address,
+            path: '',
+            privateKey: ''
+          });
+          
+          storedAddresses.push({
+            currency: 'ETH',
+            address
+          });
+        } catch (error) {
+          console.error('Error creating ETH wallet from private key:', error);
+        }
       } catch (error) {
         console.error('Error storing private key address:', error);
       }
