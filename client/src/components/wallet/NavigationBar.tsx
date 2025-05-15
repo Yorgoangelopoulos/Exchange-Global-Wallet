@@ -18,6 +18,7 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import WalletLogo from './WalletLogo';
+import WalletSwitcher from './WalletSwitcher';
 import { useToast } from '@/hooks/use-toast';
 
 const NavigationBar = () => {
@@ -55,12 +56,18 @@ const NavigationBar = () => {
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link href="/wallet">
-            <div className="flex items-center cursor-pointer">
-              <WalletLogo size={32} />
-              <span className="ml-2 text-lg font-bold text-white hidden sm:block">CryptoVault</span>
+          <div className="flex items-center gap-4">
+            <Link href="/wallet">
+              <div className="flex items-center cursor-pointer">
+                <WalletLogo size={32} />
+                <span className="ml-2 text-lg font-bold text-white hidden sm:block">CryptoVault</span>
+              </div>
+            </Link>
+            
+            <div className="hidden md:block">
+              <WalletSwitcher />
             </div>
-          </Link>
+          </div>
           
           {/* Desktop Navigation */}
           <div className="hidden md:flex space-x-1">
@@ -130,6 +137,9 @@ const NavigationBar = () => {
               <div className="flex items-center">
                 <WalletLogo size={32} />
                 <span className="ml-2 text-lg font-bold text-white">CryptoVault</span>
+              </div>
+              <div className="mt-6">
+                <WalletSwitcher />
               </div>
               <Button 
                 variant="ghost" 

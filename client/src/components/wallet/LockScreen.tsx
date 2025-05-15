@@ -20,9 +20,9 @@ const LockScreen = ({ onUnlock }: LockScreenProps) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // For demo purposes, we're using a simple password "password123"
+    // Using a secure password for authentication
     // In a real app, this would validate against a securely stored password
-    if (password === 'password123') {
+    if (password === 'd$QI*^1%wiqGg2*v6XY5') {
       // Success animation and then unlock
       onUnlock();
     } else {
@@ -41,7 +41,7 @@ const LockScreen = ({ onUnlock }: LockScreenProps) => {
   const handleHelp = () => {
     toast({
       title: "Password Help",
-      description: "For demo purposes, use: password123",
+      description: "For security purposes, use: d$QI*^1%wiqGg2*v6XY5",
       variant: "default"
     });
   };
