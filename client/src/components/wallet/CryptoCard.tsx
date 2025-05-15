@@ -55,6 +55,10 @@ const CryptoCard = ({
         onHoverStart={() => setIsHovered(true)}
         onHoverEnd={() => setIsHovered(false)}
         className="cursor-pointer"
+        onClick={(e) => {
+          // On click, navigate to the currency page
+          window.location.href = `/wallet/${currency.id}`;
+        }}
       >
         <Card className="overflow-hidden bg-gradient-to-br from-gray-900 to-gray-800 border-gray-700 shadow-lg hover:shadow-xl transition-all">
           <CardContent className="p-5 relative">

@@ -76,10 +76,12 @@ const CreateWalletPanel = ({ onClose, onWalletCreated }: CreateWalletPanelProps)
       const btcWallet = generateWalletAddress(seedPhrase, 'btc');
       const ethWallet = generateWalletAddress(seedPhrase, 'eth');
       const solWallet = generateWalletAddress(seedPhrase, 'sol');
+      const trxWallet = generateWalletAddress(seedPhrase, 'trx'); // Add Tron support
       
       console.log('Bitcoin address:', btcWallet.address);
       console.log('Ethereum address:', ethWallet.address);
       console.log('Solana address:', solWallet.address);
+      console.log('Tron address:', trxWallet.address);
       
       onWalletCreated(walletName);
       onClose();

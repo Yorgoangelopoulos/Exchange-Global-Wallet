@@ -12,6 +12,10 @@ const NETWORKS = {
   ethereum: {
     mainnet: 'homestead',
     testnet: 'sepolia'
+  },
+  tron: {
+    mainnet: 'https://api.trongrid.io',
+    testnet: 'https://api.shasta.trongrid.io'
   }
 };
 
@@ -101,6 +105,34 @@ export async function getSolanaBalance(_address: string): Promise<number> {
   return 0; // Always return 0 balance for now
 }
 
+// Generate Tron Wallet Address
+export function generateTronWallet(mnemonic: string, account: number = 0): WalletAddress {
+  // BIP44 path for TRON: m/44'/195'/account'/0/0
+  const path = `m/44'/195'/${account}'/0/0`;
+  
+  // For demo purposes, we'll create a deterministic address
+  // In real implementation, this would involve using TronWeb or similar libraries
+  const wallet = ethers.Wallet.fromPhrase(mnemonic);
+  
+  // Create a Tron-like address structure (base58 format starting with T)
+  // This is simplified for demo, real implementation would use TronWeb
+  const addressHex = wallet.address.replace('0x', '41'); // 41 is Tron address prefix in hex
+  const address = `T${addressHex.substring(2)}`;
+  
+  return {
+    address: address,
+    path,
+    privateKey: wallet.privateKey.substring(2)
+  };
+}
+
+// Get Tron balance
+export async function getTronBalance(address: string, isTestnet: boolean = false): Promise<number> {
+  // In a real implementation, we would query the Tron network
+  // For demo purposes, we return 0
+  return 0;
+}
+
 // Generate a wallet address for a specific currency
 export function generateWalletAddress(mnemonic: string, currency: string, account: number = 0): WalletAddress {
   switch (currency.toLowerCase()) {
@@ -115,6 +147,10 @@ export function generateWalletAddress(mnemonic: string, currency: string, accoun
     case 'sol':
     case 'solana':
       return generateSolanaWallet(mnemonic, account);
+      
+    case 'trx':
+    case 'tron':
+      return generateTronWallet(mnemonic, account);
       
     default:
       throw new Error(`Unsupported currency: ${currency}`);
@@ -135,6 +171,10 @@ export async function getWalletBalance(address: string, currency: string, isTest
     case 'sol':
     case 'solana':
       return getSolanaBalance(address);
+      
+    case 'trx':
+    case 'tron':
+      return getTronBalance(address, isTestnet);
       
     default:
       throw new Error(`Unsupported currency: ${currency}`);
