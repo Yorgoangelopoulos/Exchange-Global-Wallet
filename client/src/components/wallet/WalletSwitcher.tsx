@@ -93,20 +93,29 @@ const WalletSwitcher = () => {
     setShowDeleteConfirm(walletId);
   };
   
-  const confirmDelete = (walletId: string) => {
+  const confirmDelete = async (walletId: string) => {
     const walletName = wallets.find(w => w.id === walletId)?.name;
-    const success = deleteWallet(walletId);
-    
-    if (success) {
+    try {
+      const success = await deleteWallet(walletId);
+      
+      if (success) {
+        toast({
+          title: "Cüzdan Silindi",
+          description: `"${walletName}" cüzdanı başarıyla silindi.`,
+          variant: "default"
+        });
+      } else {
+        toast({
+          title: "Cüzdan Silinemedi",
+          description: "En az bir cüzdan bulunmalıdır.",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error("Error deleting wallet:", error);
       toast({
-        title: "Wallet Deleted",
-        description: `Wallet "${walletName}" has been deleted.`,
-        variant: "default"
-      });
-    } else {
-      toast({
-        title: "Cannot Delete Wallet",
-        description: "You must have at least one wallet.",
+        title: "Silme Hatası",
+        description: "Cüzdan silinirken bir hata oluştu.",
         variant: "destructive"
       });
     }
@@ -205,7 +214,7 @@ const WalletSwitcher = () => {
                           <div className="flex items-start mb-2">
                             <AlertTriangle className="h-4 w-4 text-red-500 mt-0.5 mr-2 flex-shrink-0" />
                             <p className="text-xs text-gray-300">
-                              Are you sure you want to delete this wallet? This action cannot be undone.
+                              Bu cüzdanı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.
                             </p>
                           </div>
                           <div className="flex justify-end gap-2">
@@ -215,7 +224,7 @@ const WalletSwitcher = () => {
                               className="h-8 text-xs"
                               onClick={() => setShowDeleteConfirm(null)}
                             >
-                              Cancel
+                              İptal
                             </Button>
                             <Button
                               variant="destructive"
@@ -223,7 +232,7 @@ const WalletSwitcher = () => {
                               className="h-8 text-xs"
                               onClick={() => confirmDelete(wallet.id)}
                             >
-                              Delete
+                              Sil
                             </Button>
                           </div>
                         </div>

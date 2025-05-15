@@ -182,16 +182,20 @@ export const useWallets = () => {
         method: 'DELETE'
       });
       
-      // Update local state
-      setWallets(prevWallets => prevWallets.filter(wallet => wallet.id !== walletId));
-      
-      // If we're deleting the active wallet, set the first remaining wallet as active
-      if (walletId === activeWalletId) {
-        const remainingWallets = wallets.filter(wallet => wallet.id !== walletId);
-        if (remainingWallets.length > 0) {
-          await setActiveWallet(remainingWallets[0].id);
+      // Update local state and handle active wallet change if needed
+      setWallets(prevWallets => {
+        const updatedWallets = prevWallets.filter(wallet => wallet.id !== walletId);
+        
+        // If we're deleting the active wallet, set the first remaining wallet as active
+        if (walletId === activeWalletId && updatedWallets.length > 0) {
+          // Call this outside of the setState function to avoid race conditions
+          setTimeout(() => {
+            setActiveWallet(updatedWallets[0].id);
+          }, 0);
         }
-      }
+        
+        return updatedWallets;
+      });
       
       return true;
     } catch (error) {
