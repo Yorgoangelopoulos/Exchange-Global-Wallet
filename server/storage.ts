@@ -94,8 +94,25 @@ export class DatabaseStorage implements IStorage {
   }
   
   async deleteWallet(id: number): Promise<boolean> {
-    const result = await db.delete(wallets).where(eq(wallets.id, id));
-    return result.rowCount !== null && result.rowCount > 0;
+    try {
+      // İlgili cüzdana ait tüm alt kayıtları silmemiz gerekiyor
+      // 1. Önce bakiyeleri sil
+      await db.delete(balances).where(eq(balances.walletId, id));
+      
+      // 2. Cüzdana ait işlemleri sil
+      await db.delete(transactions).where(eq(transactions.walletId, id));
+      
+      // 3. Cüzdana ait adresleri sil
+      await db.delete(walletAddresses).where(eq(walletAddresses.walletId, id));
+      
+      // 4. Son olarak cüzdanın kendisini sil
+      const result = await db.delete(wallets).where(eq(wallets.id, id));
+      
+      return result.rowCount !== null && result.rowCount > 0;
+    } catch (error) {
+      console.error("Error in deleting wallet:", error);
+      throw error;
+    }
   }
   
   // Wallet address operations
