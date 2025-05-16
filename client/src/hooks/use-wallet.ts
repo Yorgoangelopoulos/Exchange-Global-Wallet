@@ -97,7 +97,7 @@ export const useWallet = () => {
                 
                 allBalances.push({
                   id: Math.floor(Date.now() + Math.random()), // Basit bir ID
-                  walletId: parseInt(storedActiveWalletId),
+                  walletId: parseInt(newActiveWalletId),
                   currencyId: currency.id,
                   amount: balance.toString()
                 });
@@ -105,7 +105,7 @@ export const useWallet = () => {
                 console.error(`${currency.id} için bakiye sorgulama hatası:`, error);
                 allBalances.push({
                   id: Math.floor(Date.now() + Math.random()),
-                  walletId: parseInt(storedActiveWalletId),
+                  walletId: parseInt(newActiveWalletId),
                   currencyId: currency.id,
                   amount: "0"
                 });
@@ -113,8 +113,8 @@ export const useWallet = () => {
             }
           }
           
-          // İşlemleri API'den getir
-          const transactionsResponse: any = await apiRequest(`/api/wallet/${storedActiveWalletId}/transactions`);
+          // İşlemleri API'den getir (güncellenmiş ID ile)
+          const transactionsResponse: any = await apiRequest(`/api/wallet/${newActiveWalletId}/transactions`);
           const transactions: Transaction[] = transactionsResponse && transactionsResponse.transactions ? transactionsResponse.transactions : [];
           
           setWallet(prev => ({
