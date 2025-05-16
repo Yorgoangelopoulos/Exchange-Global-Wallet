@@ -303,6 +303,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const addresses = await storage.getWalletAddresses(walletId);
     res.json({ addresses });
   }));
+  
+  // Yeni endpoint: Cüzdan için kripto para adresi oluştur
+  app.post('/api/wallet/:walletId/create-address', asyncHandler(async (req: Request, res: Response) => {
+    const walletId = parseInt(req.params.walletId);
+    const { currencyId, mnemonic } = req.body;
+    
+    if (isNaN(walletId)) {
+      return res.status(400).json({ error: "Invalid wallet ID" });
+    }
+    
+    if (!currencyId) {
+      return res.status(400).json({ error: "Currency ID is required" });
+    }
+    
+    if (!mnemonic) {
+      return res.status(400).json({ error: "Mnemonic phrase is required" });
+    }
+    
+    try {
+      // Kripto para adresi oluştur
+      const walletAddress = generateWalletAddress(mnemonic, currencyId, 0);
+      
+      // Adresi veritabanına kaydet
+      const address = await storage.createWalletAddress({
+        walletId,
+        currencyId,
+        address: walletAddress.address,
+        path: walletAddress.path,
+        privateKey: '' // Özel anahtarları saklamıyoruz
+      });
+      
+      res.status(201).json({ 
+        address,
+        message: `${currencyId} adresi başarıyla oluşturuldu`
+      });
+    } catch (error) {
+      console.error(`Error creating address for ${currencyId}:`, error);
+      res.status(500).json({ error: `Failed to create address for ${currencyId}` });
+    }
+  }));
 
   // API Routes - Balances & Transactions (Temporary mock data)
   app.get('/api/wallet/:walletId/balances', asyncHandler(async (req: Request, res: Response) => {

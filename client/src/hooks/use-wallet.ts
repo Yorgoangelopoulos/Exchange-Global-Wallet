@@ -70,16 +70,65 @@ export const useWallet = () => {
         
         // Cüzdan adreslerini API'den getir
         const addressesResponse: any = await apiRequest(`/api/wallet/${activeWalletId}/addresses`);
-        const addresses: any[] = addressesResponse && addressesResponse.addresses ? addressesResponse.addresses : [];
+        let addresses: any[] = addressesResponse && addressesResponse.addresses ? addressesResponse.addresses : [];
         
+        // Eğer adresler boşsa, cüzdanın mnemonic'ini kullanarak adresler oluşturalım
         if (!addresses || addresses.length === 0) {
-          console.log("Cüzdan için adres bulunamadı, boş bakiye ile devam ediliyor");
-          setWallet(prev => ({
-            ...prev,
-            balances: emptyBalances,
-            transactions: emptyTransactions
-          }));
-          return;
+          console.log("Cüzdan için adres bulunamadı, adresler oluşturuluyor...");
+          
+          if (walletInfo.mnemonic) {
+            const mnemonic = walletInfo.mnemonic;
+            
+            // Önce desteklenen tüm kripto para birimleri için adres oluştur
+            for (const currency of supportedCurrencies) {
+              try {
+                // API'ye POST isteği ile adres oluşturma
+                const newAddressResponse: any = await apiRequest(
+                  `/api/wallet/${activeWalletId}/create-address`,
+                  {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                      currencyId: currency.id,
+                      mnemonic: mnemonic
+                    })
+                  }
+                );
+                
+                if (newAddressResponse && newAddressResponse.address) {
+                  console.log(`${currency.name} için adres oluşturuldu: ${newAddressResponse.address.address}`);
+                }
+              } catch (error) {
+                console.error(`${currency.id} için adres oluşturulamadı:`, error);
+              }
+            }
+            
+            // Şimdi tekrar adresleri çekelim
+            const updatedAddressesResponse: any = await apiRequest(`/api/wallet/${activeWalletId}/addresses`);
+            addresses = updatedAddressesResponse && updatedAddressesResponse.addresses 
+              ? updatedAddressesResponse.addresses 
+              : [];
+            
+            if (!addresses || addresses.length === 0) {
+              console.log("Adres oluşturma başarısız, boş bakiye ile devam ediliyor");
+              setWallet(prev => ({
+                ...prev,
+                balances: emptyBalances,
+                transactions: emptyTransactions
+              }));
+              return;
+            }
+          } else {
+            console.log("Cüzdan için mnemonic bilgisi bulunamadı, boş bakiye ile devam ediliyor");
+            setWallet(prev => ({
+              ...prev,
+              balances: emptyBalances,
+              transactions: emptyTransactions
+            }));
+            return;
+          }
         }
         
         // Her bir desteklenen kripto para için bakiye hesapla
