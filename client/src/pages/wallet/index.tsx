@@ -13,9 +13,14 @@ const WalletPage = () => {
     setIsLocked(false);
   };
 
-  // Oturum süresini kontrol et (20 dakika sonra otomatik kilit)
+  // Başlangıçta sessionStorage'daki tüm verileri temizle ve her zaman kilitli başla
   useEffect(() => {
-    // Oturum açıksa, oturum zamanını kontrol et
+    // Her başlangıçta oturum verilerini temizle, şifre ekranının her zaman görünmesini sağlar
+    sessionStorage.removeItem('walletUnlocked');
+    sessionStorage.removeItem('unlockTime');
+    setIsLocked(true);
+    
+    // Oturum açıksa, oturum zamanını kontrol et (20 dakika sonra otomatik kilit)
     const checkSessionValidity = () => {
       const unlocked = sessionStorage.getItem('walletUnlocked');
       const unlockTime = sessionStorage.getItem('unlockTime');
@@ -25,19 +30,17 @@ const WalletPage = () => {
         const unlockTimeMs = parseInt(unlockTime);
         const sessionDuration = 20 * 60 * 1000; // 20 dakika
         
-        // 20 dakikadan fazla geçtiyse kilitle, değilse kilidi aç
+        // 20 dakikadan fazla geçtiyse kilitle
         if (now - unlockTimeMs > sessionDuration) {
+          console.log('Oturum süresi doldu, cüzdan kilitleniyor...');
           sessionStorage.removeItem('walletUnlocked');
           sessionStorage.removeItem('unlockTime');
           setIsLocked(true);
-        } else {
-          setIsLocked(false);
         }
       }
     };
     
-    // Başlangıçta ve her 1 dakikada bir kontrol et
-    checkSessionValidity();
+    // Her 1 dakikada bir oturum süresini kontrol et
     const interval = setInterval(checkSessionValidity, 60 * 1000);
     
     return () => clearInterval(interval);

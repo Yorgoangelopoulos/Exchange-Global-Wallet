@@ -212,7 +212,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     } else if (importMethod === 'mnemonic') {
       // Generate addresses for supported cryptocurrencies from mnemonic
-      const currencies = ['bitcoin', 'ethereum', 'solana', 'tron', 'cardano'];
+      // BSC eklenmiş güncel liste
+      const currencies = ['ethereum', 'solana', 'tron', 'cardano', 'bsc'];
       
       for (const currency of currencies) {
         try {
