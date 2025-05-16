@@ -23,10 +23,9 @@ export const useWallets = () => {
     try {
       const userId = 1; // This would come from authentication
       const response = await apiRequest(`/api/wallets/${userId}`);
-      const data = await response.json();
       
-      if (data?.wallets) {
-        const fetchedWallets: WalletInfo[] = data.wallets.map((w: any) => ({
+      if (response?.wallets) {
+        const fetchedWallets: WalletInfo[] = response.wallets.map((w: any) => ({
           id: w.id.toString(),
           name: w.name,
           type: w.type || 'local',
@@ -39,6 +38,9 @@ export const useWallets = () => {
         if (fetchedWallets.length > 0) {
           fetchedWallets[0].isActive = true;
           setActiveWalletId(fetchedWallets[0].id);
+          
+          // Active cüzdanı localStorage'a kaydet
+          localStorage.setItem('active_wallet_id', fetchedWallets[0].id);
         }
         
         setWallets(fetchedWallets);

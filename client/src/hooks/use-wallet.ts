@@ -48,12 +48,14 @@ export const useWallet = () => {
         
         try {
           // Cüzdan bilgilerini API'den getir
-          const walletInfo: any = await apiRequest(`/api/wallets/${storedActiveWalletId}`);
+          const walletResponse: any = await apiRequest(`/api/wallets/${storedActiveWalletId}`);
           
-          if (!walletInfo) {
+          if (!walletResponse || !walletResponse.wallets || walletResponse.wallets.length === 0) {
             console.error("Cüzdan bilgileri bulunamadı");
             return;
           }
+          
+          const walletInfo = walletResponse.wallets[0];
           
           // Cüzdan mnemonic bilgisini sakla
           if (walletInfo.mnemonic) {
@@ -64,8 +66,8 @@ export const useWallet = () => {
           }
           
           // Cüzdan adreslerini API'den getir
-          const addressesResponse = await apiRequest(`/api/wallet/${storedActiveWalletId}/addresses`);
-          const addresses: any[] = addressesResponse || [];
+          const addressesResponse: any = await apiRequest(`/api/wallet/${storedActiveWalletId}/addresses`);
+          const addresses: any[] = addressesResponse && addressesResponse.addresses ? addressesResponse.addresses : [];
           
           if (!addresses || addresses.length === 0) {
             console.log("Cüzdan için adres bulunamadı, boş bakiye ile devam ediliyor");
@@ -107,8 +109,8 @@ export const useWallet = () => {
           }
           
           // İşlemleri API'den getir
-          const transactionsResponse = await apiRequest(`/api/wallet/${storedActiveWalletId}/transactions`);
-          const transactions: Transaction[] = transactionsResponse || [];
+          const transactionsResponse: any = await apiRequest(`/api/wallet/${storedActiveWalletId}/transactions`);
+          const transactions: Transaction[] = transactionsResponse && transactionsResponse.transactions ? transactionsResponse.transactions : [];
           
           setWallet(prev => ({
             ...prev,
