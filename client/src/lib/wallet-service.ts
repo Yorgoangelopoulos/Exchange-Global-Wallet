@@ -124,10 +124,25 @@ export function generateSolanaWallet(mnemonic: string, account: number = 0): Wal
 }
 
 // Get Solana balance (real implementation)
-export async function getSolanaBalance(_address: string): Promise<number> {
-  // In a real application, you would query the Solana blockchain
-  // For now, we return 0 as this requires a connection to a Solana node
-  return 0;
+export async function getSolanaBalance(address: string): Promise<number> {
+  try {
+    // Solana RPC API endpoint kullan
+    const apiUrl = `https://public-api.solscan.io/account/${address}`;
+    
+    // API'den hesap bilgisini al
+    const response = await fetch(apiUrl);
+    const data = await response.json();
+    
+    // Lamports'tan SOL'a çevir (1 SOL = 1,000,000,000 lamports)
+    if (data && data.lamports) {
+      return data.lamports / 1000000000;
+    }
+    
+    return 0;
+  } catch (error) {
+    console.error('Solana balance check failed:', error);
+    return 0;
+  }
 }
 
 // Generate real Tron Wallet Address
@@ -179,10 +194,25 @@ export function generateTronWallet(mnemonic: string, account: number = 0): Walle
 }
 
 // Get Tron balance
-export async function getTronBalance(_address: string): Promise<number> {
-  // In a real implementation, we would query the Tron network using TronWeb
-  // This requires API setup and proper CORS configuration
-  return 0;
+export async function getTronBalance(address: string): Promise<number> {
+  try {
+    // TRON API endpoint
+    const apiUrl = `https://apilist.tronscan.org/api/account?address=${address}`;
+    
+    // API'den hesap bilgisini al
+    const response = await fetch(apiUrl);
+    const data = await response.json();
+    
+    // Bakiyeyi sun biriminden TRX'e çevir (1 TRX = 1,000,000 SUN)
+    if (data && data.balance) {
+      return data.balance / 1000000;
+    }
+    
+    return 0;
+  } catch (error) {
+    console.error('Tron balance check failed:', error);
+    return 0;
+  }
 }
 
 // Generate Cardano Wallet Address 
