@@ -68,15 +68,21 @@ export const useWallet = () => {
           console.log("Demo cüzdan verileri kullanılıyor:", demoWallet);
           
           // Demo cüzdan ve adresler ile devam et
+          // Desteklenen tüm kripto paraları göster
           const currencies = supportedCurrencies.map(c => c.id);
+          console.log("Desteklenen para birimleri:", currencies);
+          
           const demoBalances: Balance[] = currencies.map((currency, index) => {
+            // BSC'nin de gösterildiğinden emin ol
             const demoValues = {
               ethereum: 0.05,
-              bsc: 1.25,
+              bsc: 1.25, // BSC/BNB değeri
               solana: 0.75,
               tron: 210.5,
               cardano: 165.25
             };
+            
+            console.log(`${currency} için bakiye oluşturuluyor:`, demoValues[currency as keyof typeof demoValues] || 0);
             
             return {
               id: index + 1, 
