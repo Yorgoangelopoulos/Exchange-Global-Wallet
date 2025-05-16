@@ -3,13 +3,12 @@ import { CryptoCurrency, Balance, Transaction } from '@shared/schema';
 import { apiRequest } from '@/lib/queryClient';
 import { getWalletBalance } from '@/lib/wallet-service';
 
-// Desteklenen kripto para birimleri - Gerçek uygulamada kullanılacak
+// Desteklenen kripto para birimleri - İstenen 4 kripto para
 const supportedCurrencies: CryptoCurrency[] = [
   { id: 'ethereum', name: 'Ethereum', symbol: 'ETH', description: null, iconUrl: 'https://cryptologos.cc/logos/ethereum-eth-logo.svg', color: '#627EEA', isActive: true, sortOrder: 1 },
   { id: 'bsc', name: 'BNB Smart Chain', symbol: 'BNB', description: null, iconUrl: 'https://cryptologos.cc/logos/bnb-bnb-logo.svg', color: '#F3BA2F', isActive: true, sortOrder: 2 },
   { id: 'solana', name: 'Solana', symbol: 'SOL', description: null, iconUrl: 'https://cryptologos.cc/logos/solana-sol-logo.svg', color: '#00FFA3', isActive: true, sortOrder: 3 },
-  { id: 'tron', name: 'TRON', symbol: 'TRX', description: null, iconUrl: 'https://cryptologos.cc/logos/tron-trx-logo.svg', color: '#FF0013', isActive: true, sortOrder: 4 },
-  { id: 'cardano', name: 'Cardano', symbol: 'ADA', description: null, iconUrl: 'https://cryptologos.cc/logos/cardano-ada-logo.svg', color: '#0033AD', isActive: true, sortOrder: 5 }
+  { id: 'tron', name: 'TRON', symbol: 'TRX', description: null, iconUrl: 'https://cryptologos.cc/logos/tron-trx-logo.svg', color: '#FF0013', isActive: true, sortOrder: 4 }
 ];
 
 // Varsayılan boş başlangıç durumları
@@ -73,13 +72,12 @@ export const useWallet = () => {
           console.log("Desteklenen para birimleri:", currencies);
           
           const demoBalances: Balance[] = currencies.map((currency, index) => {
-            // BSC'nin de gösterildiğinden emin ol
+            // Dört kripto para için değerler
             const demoValues = {
               ethereum: 0.05,
               bsc: 1.25, // BSC/BNB değeri
               solana: 0.75,
-              tron: 210.5,
-              cardano: 165.25
+              tron: 210.5
             };
             
             console.log(`${currency} için bakiye oluşturuluyor:`, demoValues[currency as keyof typeof demoValues] || 0);
