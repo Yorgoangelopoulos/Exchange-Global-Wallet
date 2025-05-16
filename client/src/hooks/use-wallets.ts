@@ -177,29 +177,71 @@ export const useWallets = () => {
   // Rename a wallet
   const renameWallet = async (walletId: string, newName: string) => {
     try {
+      console.log(`Renaming wallet ${walletId} to "${newName}" - starting API request`);
+      
       // Update wallet name on the server
       const numericId = parseInt(walletId);
       if (isNaN(numericId)) {
         throw new Error('Invalid wallet ID');
       }
       
-      await apiRequest(`/api/wallet/${walletId}`, {
+      const response = await apiRequest(`/api/wallet/${walletId}`, {
         method: 'PATCH',
         body: JSON.stringify({
           name: newName
         })
       });
       
-      // Update in local state
-      setWallets(prevWallets => 
-        prevWallets.map(wallet => 
-          wallet.id === walletId 
-            ? { ...wallet, name: newName }
-            : wallet
-        )
-      );
+      const data = await response.json();
+      console.log("API response:", data);
       
-      return true;
+      if (data && data.success) {
+        // Update in local state
+        setWallets(prevWallets => {
+          const newWallets = prevWallets.map(wallet => 
+            wallet.id === walletId 
+              ? { ...wallet, name: newName }
+              : wallet
+          );
+          console.log("Updated wallets in state:", newWallets);
+          return newWallets;
+        });
+        
+        // Diğer componentleri bilgilendir
+        console.log("Dispatching wallet-changed event");
+        window.dispatchEvent(new Event('wallet-changed'));
+        
+        // Güncelleme sonrası cüzdanları sunucudan tekrar yükle
+        setTimeout(async () => {
+          try {
+            console.log("Reloading wallets from server after rename");
+            const userId = 1; // Bu userId sabit değer, gerçek uygulamada otomatik alınacak
+            const refreshResponse = await apiRequest(`/api/wallets/${userId}`);
+            const refreshData = await refreshResponse.json();
+            
+            if (refreshData && refreshData.wallets) {
+              console.log("Refreshed wallets:", refreshData.wallets);
+              // Güncel cüzdan listesini ayarla
+              setWallets(refreshData.wallets.map((wallet: any) => ({
+                id: String(wallet.id),
+                name: wallet.name,
+                type: wallet.type.includes('imported') ? 'imported' : 'local',
+                importMethod: wallet.type === 'imported_mnemonic' ? 'mnemonic' : 
+                              wallet.type === 'imported_private_key' ? 'privateKey' : undefined,
+                isActive: wallet.isActive,
+                dateCreated: new Date(wallet.createdAt).toISOString()
+              })));
+            }
+          } catch (refreshError) {
+            console.error("Error refreshing wallets after rename:", refreshError);
+          }
+        }, 500);
+        
+        return true;
+      } else {
+        console.error("API returned error:", data);
+        return false;
+      }
     } catch (error) {
       console.error('Error renaming wallet:', error);
       return false;
