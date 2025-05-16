@@ -387,7 +387,7 @@ const WalletSwitcher = () => {
                       onClick={() => setShowCreatePanel(true)}
                     >
                       <Plus className="h-3.5 w-3.5 mr-1.5" />
-                      New Wallet
+                      Yeni Cüzdan
                     </Button>
                     <Button
                       variant="outline"
@@ -396,7 +396,7 @@ const WalletSwitcher = () => {
                       onClick={() => setShowImportPanel(true)}
                     >
                       <Import className="h-3.5 w-3.5 mr-1.5" />
-                      Import Wallet
+                      Cüzdan İçe Aktar
                     </Button>
                     {wallets.length > 0 && (
                       <Button
@@ -420,7 +420,7 @@ const WalletSwitcher = () => {
                       className="w-full justify-center text-xs"
                       onClick={() => setIsEditing(false)}
                     >
-                      Done
+                      Tamam
                     </Button>
                   </div>
                 )}
