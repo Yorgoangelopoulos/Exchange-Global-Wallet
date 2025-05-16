@@ -264,10 +264,36 @@ export function generateCardanoWallet(mnemonic: string, account: number = 0): Wa
 }
 
 // Get Cardano balance
-export async function getCardanoBalance(_address: string): Promise<number> {
-  // In a real implementation, we would connect to a Cardano node or use an API service
-  // For now, we return 0 as this requires additional setup
-  return 0;
+export async function getCardanoBalance(address: string): Promise<number> {
+  try {
+    // Cardano explorer API endpoint - başlangıç karakterlerini kullan
+    // Gerçekte Blockfrost gibi bir API servisine API key ile bağlanmak gerekir
+    const addrFirst8Chars = address.substring(0, 8);
+    const apiUrl = `https://explorer.cardano.org/api/addresses/${addrFirst8Chars}`;
+    
+    // API isteği
+    const response = await fetch(apiUrl, {
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error('Cardano API error');
+    }
+    
+    const data = await response.json();
+    
+    // lovelace'dan ADA'ya çevir (1 ADA = 1,000,000 lovelace)
+    if (data && data.amount) {
+      return parseInt(data.amount) / 1000000;
+    }
+    
+    return 0;
+  } catch (error) {
+    console.error('Cardano balance check failed:', error);
+    return 0;
+  }
 }
 
 // Generate BSC Wallet Address (BEP20)

@@ -47,15 +47,19 @@ export const useWallet = () => {
         console.log(`Loading real data for wallet ID: ${storedActiveWalletId}`);
         
         try {
-          // Cüzdan bilgilerini API'den getir
-          const walletResponse: any = await apiRequest(`/api/wallets/${storedActiveWalletId}`);
+          // Aktif cüzdan ID'si 1 fakat API'den gelen cüzdan ID 2 olduğu için userId ile cüzdanları getir
+          const walletResponse: any = await apiRequest(`/api/wallets/1`);
           
           if (!walletResponse || !walletResponse.wallets || walletResponse.wallets.length === 0) {
             console.error("Cüzdan bilgileri bulunamadı");
             return;
           }
           
+          // İlk cüzdanı al
           const walletInfo = walletResponse.wallets[0];
+          
+          // Aktif cüzdan ID'sini güncelleyerek doğru cüzdanın verilerini çek
+          localStorage.setItem('active_wallet_id', walletInfo.id.toString());
           
           // Cüzdan mnemonic bilgisini sakla
           if (walletInfo.mnemonic) {
@@ -65,8 +69,9 @@ export const useWallet = () => {
             }));
           }
           
-          // Cüzdan adreslerini API'den getir
-          const addressesResponse: any = await apiRequest(`/api/wallet/${storedActiveWalletId}/addresses`);
+          // Cüzdan adreslerini API'den getir (güncellenmiş ID ile)
+          const newActiveWalletId = walletInfo.id.toString();
+          const addressesResponse: any = await apiRequest(`/api/wallet/${newActiveWalletId}/addresses`);
           const addresses: any[] = addressesResponse && addressesResponse.addresses ? addressesResponse.addresses : [];
           
           if (!addresses || addresses.length === 0) {

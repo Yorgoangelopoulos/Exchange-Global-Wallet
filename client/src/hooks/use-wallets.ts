@@ -22,7 +22,7 @@ export const useWallets = () => {
   const fetchWallets = useCallback(async () => {
     try {
       const userId = 1; // This would come from authentication
-      const response = await apiRequest(`/api/wallets/${userId}`);
+      const response: any = await apiRequest(`/api/wallets/${userId}`);
       
       if (response?.wallets) {
         const fetchedWallets: WalletInfo[] = response.wallets.map((w: any) => ({
