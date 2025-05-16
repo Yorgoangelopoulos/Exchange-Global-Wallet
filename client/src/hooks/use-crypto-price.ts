@@ -18,11 +18,9 @@ export const useCryptoPrice = () => {
       try {
         setIsLoading(true);
         
-        // List of coins to fetch
+        // Sadece kullandığımız 4 kripto para birimini ekleyelim
         const coinIds = [
-          'ethereum', 'solana', 'tron', 
-          'avalanche', 'cardano', 'tether', 'bnb', 
-          'xrp', 'polkadot', 'dogecoin'
+          'ethereum', 'solana', 'tron', 'bnb'
         ];
         
         // Fetch real prices from CoinGecko
@@ -58,19 +56,13 @@ export const useCryptoPrice = () => {
       }
     };
     
-    // Fallback function if API fails
+    // Varsayılan fiyat verileri - Sadece desteklenen 4 kripto para birimi
     const useFallbackPrices = () => {
       const fallbackPrices: PriceData[] = [
         { id: 'ethereum', price: 1925.37, change24h: -0.8 },
         { id: 'solana', price: 42.18, change24h: 3.5 },
         { id: 'tron', price: 0.13, change24h: 1.95 },
-        { id: 'avalanche', price: 21.75, change24h: 2.1 },
-        { id: 'cardano', price: 0.48, change24h: 2.15 },
-        { id: 'tether', price: 1.00, change24h: 0.01 },
-        { id: 'bnb', price: 215.64, change24h: 0.9 },
-        { id: 'xrp', price: 0.62, change24h: -2.1 },
-        { id: 'polkadot', price: 6.82, change24h: 0.75 },
-        { id: 'dogecoin', price: 0.12, change24h: 3.42 }
+        { id: 'bnb', price: 215.64, change24h: 0.9 }
       ];
       
       setPrices(fallbackPrices);
