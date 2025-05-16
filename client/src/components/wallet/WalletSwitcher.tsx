@@ -41,8 +41,11 @@ const WalletSwitcher = () => {
   const { toast } = useToast();
   
   const handleToggle = () => {
-    setIsOpen(!isOpen);
-    if (isOpen) {
+    const newIsOpen = !isOpen;
+    setIsOpen(newIsOpen);
+    
+    // Cüzdan listesi kapandığında düzenleme modundan çık
+    if (!newIsOpen) {
       setIsEditing(false);
       setEditingWalletId(null);
       setShowDeleteConfirm(null);
@@ -395,7 +398,7 @@ const WalletSwitcher = () => {
                       <Import className="h-3.5 w-3.5 mr-1.5" />
                       Import Wallet
                     </Button>
-                    {!isEditing && wallets.length > 0 && (
+                    {wallets.length > 0 && (
                       <Button
                         variant="outline"
                         size="sm"
@@ -403,7 +406,7 @@ const WalletSwitcher = () => {
                         onClick={() => setIsEditing(true)}
                       >
                         <Pencil className="h-3.5 w-3.5 mr-1.5" />
-                        Manage Wallets
+                        Cüzdanları Yönet
                       </Button>
                     )}
                   </div>
