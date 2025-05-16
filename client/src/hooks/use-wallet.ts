@@ -48,65 +48,40 @@ export const useWallet = () => {
         const data = await response.json();
         console.log("Doğrudan fetch ile alınan cüzdan verileri:", data);
         
-        // API'den userId=1 ile tüm cüzdanları getir (ID ile arama yerine)
-        // API isteğini tekrar deneyelim
-        const walletResponse: any = await apiRequest(`/api/wallets/1`);
-        console.log("apiRequest ile alınan cüzdan verileri:", walletResponse);
-        
-        if (!walletResponse || !walletResponse.wallets || walletResponse.wallets.length === 0) {
-          console.error("Kullanıcıya ait cüzdan bulunamadı");
-          // Demo test verilerini oluştur ve kullan
-          const demoWallet = {
-            id: 2,
-            userId: 1,
-            name: "Demo Wallet",
-            type: "hd",
-            mnemonic: "umbrella lesson intact iron jar output cereal rookie august hat curtain limb grocery lounge parent ugly latin achieve ugly dance exist train spoil winter"
-          };
-          
-          console.log("Demo cüzdan verileri kullanılıyor:", demoWallet);
-          
-          // Demo cüzdan ve adresler ile devam et
-          // Desteklenen tüm kripto paraları göster
-          const currencies = supportedCurrencies.map(c => c.id);
-          console.log("Desteklenen para birimleri:", currencies);
-          
-          const demoBalances: Balance[] = currencies.map((currency, index) => {
-            // Dört kripto para için değerler
-            const demoValues = {
-              ethereum: 0.05,
-              bsc: 1.25, // BSC/BNB değeri
-              solana: 0.75,
-              tron: 210.5
-            };
-            
-            console.log(`${currency} için bakiye oluşturuluyor:`, demoValues[currency as keyof typeof demoValues] || 0);
-            
-            return {
-              id: index + 1, 
-              walletId: 2,
-              currencyId: currency,
-              amount: (demoValues[currency as keyof typeof demoValues] || 0).toString()
-            };
-          });
-          
-          // Wallet durumunu demo değerlerle güncelle
-          setWallet(prev => ({
-            ...prev,
-            balances: demoBalances,
-            transactions: emptyTransactions
-          }));
-          
-          return;
-        }
-        
-        // İlk cüzdanı al
-        const walletInfo = walletResponse.wallets[0];
-        console.log(`Bulunan cüzdan: ID=${walletInfo.id}, İsim=${walletInfo.name}`);
+        // Doğrudan veriyi kullanalım - apiRequest ile sorun yaşanıyor 
+        // API yanıtını kullan
+        const walletInfo = data.wallets[0];
+        console.log("Doğrudan fetch ile alınan cüzdan verileri kullanılıyor:", walletInfo);
         
         // Aktif cüzdan ID'sini güncelleyerek doğru cüzdanın verilerini çek
         const activeWalletId = walletInfo.id.toString();
         localStorage.setItem('active_wallet_id', activeWalletId);
+        
+        // Desteklenen tüm kripto paraları göster
+        const currencies = supportedCurrencies.map(c => c.id);
+        console.log("Desteklenen para birimleri:", currencies);
+        
+        // Gerçek bakiyelerin sorgulanması gerçek bilgilere dayanacak, ancak 
+        // şimdilik gerçekçi değerler gösterelim
+        console.log("Gerçek bakiyeler yerine test bakiyeleri gösteriliyor");
+        
+        // Gerçek blockchain bakiyeleri yerine boş bakiyeler ile başlayalım
+        // Not: Gerçek uygulamada bu değerler blockchain API'lerinden çekilecek
+        const initialBalances: Balance[] = currencies.map((currency, index) => {
+          return {
+            id: index + 1, 
+            walletId: parseInt(activeWalletId),
+            currencyId: currency,
+            amount: "0" // Gerçek blockchain verisi olmadığında 0 değeri göster
+          };
+        });
+        
+        // Wallet durumunu gerçekçi değerlerle güncelle 
+        setWallet(prev => ({
+          ...prev,
+          balances: realBalances,
+          transactions: emptyTransactions
+        }));
           
         // Cüzdan mnemonic bilgisini sakla
         if (walletInfo.mnemonic) {
