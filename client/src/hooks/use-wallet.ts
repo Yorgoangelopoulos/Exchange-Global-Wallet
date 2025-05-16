@@ -76,10 +76,10 @@ export const useWallet = () => {
           };
         });
         
-        // Wallet durumunu gerçekçi değerlerle güncelle 
+        // Wallet durumunu boş bakiyelerle güncelle 
         setWallet(prev => ({
           ...prev,
-          balances: realBalances,
+          balances: initialBalances,
           transactions: emptyTransactions
         }));
           
