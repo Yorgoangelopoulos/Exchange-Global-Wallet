@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # CryptoVault - Çok Ağlı Kripto Para Cüzdanı
 
 ![CryptoVault Logo](./generated-icon.png)
