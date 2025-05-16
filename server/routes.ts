@@ -427,6 +427,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   }));
   
+  // API Route - Update a wallet
+  app.patch('/api/wallet/:walletId', asyncHandler(async (req: Request, res: Response) => {
+    const walletId = parseInt(req.params.walletId);
+    
+    if (isNaN(walletId)) {
+      return res.status(400).json({ error: "Invalid wallet ID" });
+    }
+    
+    const { name } = req.body;
+    
+    if (!name || typeof name !== 'string' || name.trim() === '') {
+      return res.status(400).json({ error: "Name is required and must be a non-empty string" });
+    }
+    
+    try {
+      // Update the wallet
+      const updatedWallet = await storage.updateWallet(walletId, { name: name.trim() });
+      
+      if (updatedWallet) {
+        res.json({ 
+          success: true, 
+          wallet: updatedWallet 
+        });
+      } else {
+        res.status(404).json({ error: "Wallet not found" });
+      }
+    } catch (error) {
+      console.error("Error updating wallet:", error);
+      res.status(500).json({ error: "Failed to update wallet", message: error instanceof Error ? error.message : 'Unknown error' });
+    }
+  }));
+
   // API Route - Delete a wallet
   app.delete('/api/wallet/:walletId', asyncHandler(async (req: Request, res: Response) => {
     const walletId = parseInt(req.params.walletId);

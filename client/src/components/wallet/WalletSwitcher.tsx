@@ -71,17 +71,38 @@ const WalletSwitcher = () => {
     setNewName(wallet.name);
   };
   
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     if (editingWalletId && newName.trim()) {
-      renameWallet(editingWalletId, newName);
+      try {
+        // Log olarak işlemi görmek için
+        console.log(`Renaming wallet ${editingWalletId} to "${newName}"`);
+        
+        const success = await renameWallet(editingWalletId, newName);
+        
+        if (success) {
+          toast({
+            title: "Cüzdan Adı Değiştirildi",
+            description: `Cüzdan adı "${newName}" olarak güncellendi.`,
+            variant: "default"
+          });
+        } else {
+          toast({
+            title: "İsim Değiştirme Hatası",
+            description: "Cüzdan adı değiştirilemedi.",
+            variant: "destructive"
+          });
+        }
+      } catch (error) {
+        console.error("Error renaming wallet:", error);
+        toast({
+          title: "İsim Değiştirme Hatası",
+          description: "Cüzdan adı değiştirilirken bir hata oluştu.",
+          variant: "destructive"
+        });
+      }
+      
       setIsEditing(false);
       setEditingWalletId(null);
-      
-      toast({
-        title: "Wallet Renamed",
-        description: `Wallet has been renamed to "${newName}".`,
-        variant: "default"
-      });
     }
   };
   
