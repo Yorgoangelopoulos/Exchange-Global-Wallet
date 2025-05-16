@@ -17,9 +17,21 @@ const NETWORKS = {
     mainnet: 'homestead',
     testnet: 'sepolia'
   },
+  bsc: {
+    mainnet: 'https://bsc-dataseed.binance.org',
+    testnet: 'https://data-seed-prebsc-1-s1.binance.org:8545'
+  },
   tron: {
     mainnet: 'https://api.trongrid.io',
     testnet: 'https://api.shasta.trongrid.io'
+  },
+  solana: {
+    mainnet: 'https://api.mainnet-beta.solana.com',
+    testnet: 'https://api.testnet.solana.com'
+  },
+  cardano: {
+    mainnet: 'https://cardano-mainnet.blockfrost.io/api/v0',
+    testnet: 'https://cardano-testnet.blockfrost.io/api/v0'
   }
 };
 
@@ -228,12 +240,48 @@ export async function getCardanoBalance(_address: string): Promise<number> {
   return 0;
 }
 
+// Generate BSC Wallet Address (BEP20)
+export function generateBSCWallet(mnemonic: string, account: number = 0): WalletAddress {
+  // BSC uses the same derivation path as Ethereum: m/44'/60'/0'/0/account
+  const path = `m/44'/60'/0'/0/${account}`;
+  
+  // BSC is EVM-compatible, so we can reuse Ethereum wallet creation
+  const wallet = ethers.Wallet.fromPhrase(mnemonic);
+  
+  return {
+    address: wallet.address,
+    path,
+    privateKey: wallet.privateKey.substring(2) // Remove '0x' prefix
+  };
+}
+
+// Get balance for BSC address
+export async function getBSCBalance(address: string, isTestnet: boolean = false): Promise<number> {
+  try {
+    // Use appropriate BSC RPC URL
+    const provider = new ethers.JsonRpcProvider(
+      isTestnet ? NETWORKS.bsc.testnet : NETWORKS.bsc.mainnet
+    );
+    
+    const balance = await provider.getBalance(address);
+    return parseFloat(ethers.formatEther(balance));
+  } catch (error) {
+    console.error('Error fetching BSC balance:', error);
+    return 0;
+  }
+}
+
 // Generate a wallet address for a specific currency
 export function generateWalletAddress(mnemonic: string, currency: string, account: number = 0): WalletAddress {
   switch (currency.toLowerCase()) {
     case 'eth':
     case 'ethereum':
       return generateEthereumWallet(mnemonic, account);
+      
+    case 'bnb':
+    case 'bsc':
+    case 'binance':
+      return generateBSCWallet(mnemonic, account);
       
     case 'sol':
     case 'solana':
@@ -258,6 +306,11 @@ export async function getWalletBalance(address: string, currency: string, isTest
     case 'eth':
     case 'ethereum':
       return getEthereumBalance(address, isTestnet);
+      
+    case 'bnb':
+    case 'bsc':
+    case 'binance':
+      return getBSCBalance(address, isTestnet);
       
     case 'sol':
     case 'solana':
