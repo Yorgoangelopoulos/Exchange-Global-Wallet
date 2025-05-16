@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # CryptoVault - Çok Ağlı Kripto Para Cüzdanı
 
 ![CryptoVault Logo](./generated-icon.png)
@@ -105,3 +106,6 @@ Bu proje MIT lisansı altında lisanslanmıştır. Detaylı bilgi için [LICENSE
 ## İletişim
 
 GitHub: [Yorgoangelopoulos](https://github.com/Yorgoangelopoulos)
+=======
+# Exchange-Global-Wallet
+>>>>>>> f85f17263355074e4a17b6c5637f07e0c6b0e4e3
