@@ -8,7 +8,7 @@ import {
   favorites, type Favorite, type InsertFavorite
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and } from "drizzle-orm";
+import { eq, and, sql } from "drizzle-orm";
 
 export interface IStorage {
   // User operations
@@ -95,20 +95,26 @@ export class DatabaseStorage implements IStorage {
   
   async deleteWallet(id: number): Promise<boolean> {
     try {
-      // İlgili cüzdana ait tüm alt kayıtları silmemiz gerekiyor
-      // 1. Önce bakiyeleri sil
-      await db.delete(balances).where(eq(balances.walletId, id));
+      // Önce direkt SQL ile mevcut veritabanı bağlantıları silelim ki,
+      // yabancı anahtar kısıtlamaları engel olmasın
       
-      // 2. Cüzdana ait işlemleri sil
-      await db.delete(transactions).where(eq(transactions.walletId, id));
+      // 1. Adresler tablosundan silme işlemi
+      await db.execute(sql`DELETE FROM wallet_addresses WHERE wallet_id = ${id}`);
+      console.log(`Deleted addresses for wallet ${id}`);
       
-      // 3. Cüzdana ait adresleri sil
-      await db.delete(walletAddresses).where(eq(walletAddresses.walletId, id));
+      // 2. Bakiyeler tablosundan silme işlemi 
+      await db.execute(sql`DELETE FROM balances WHERE wallet_id = ${id}`);
+      console.log(`Deleted balances for wallet ${id}`);
       
-      // 4. Son olarak cüzdanın kendisini sil
-      const result = await db.delete(wallets).where(eq(wallets.id, id));
+      // 3. İşlemler tablosundan silme işlemi
+      await db.execute(sql`DELETE FROM transactions WHERE wallet_id = ${id}`);
+      console.log(`Deleted transactions for wallet ${id}`);
       
-      return result.rowCount !== null && result.rowCount > 0;
+      // 4. Cüzdanın kendisini silme
+      await db.execute(sql`DELETE FROM wallets WHERE id = ${id}`);
+      console.log(`Deleted wallet ${id}`);
+      
+      return true;
     } catch (error) {
       console.error("Error in deleting wallet:", error);
       throw error;
