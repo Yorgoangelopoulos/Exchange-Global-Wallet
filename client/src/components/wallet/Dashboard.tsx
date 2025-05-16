@@ -36,36 +36,31 @@ const Dashboard = () => {
     return total + (parseFloat(balance.amount) * currencyPrice);
   }, 0);
   
-  // List of cryptocurrencies with balances and prices
-  const cryptoList = wallet.balances.map(balance => {
-    const currency = wallet.currencies.find(c => c.id === balance.currencyId);
-    // Fiyat verileri bulunamasa bile kripto kartlarını göster
-    // bnb ID'si için özel kontrol yap
-    const priceData = prices.find(p => 
-      p.id === balance.currencyId || 
-      (balance.currencyId === 'bnb' && p.id === 'bnb') ||
-      (balance.currencyId === 'ethereum' && p.id === 'ethereum') ||
-      (balance.currencyId === 'solana' && p.id === 'solana') ||
-      (balance.currencyId === 'tron' && p.id === 'tron')
-    );
+  // Tüm desteklenen kripto paralar için kart oluştur
+  const cryptoList = wallet.currencies.map(currency => {
+    // İlgili bakiyeyi bul
+    const balance = wallet.balances.find(b => b.currencyId === currency.id);
     
-    // Eğer currency bulunamazsa null döndür, ancak priceData bulunamazsa varsayılan değerler kullan
-    if (!currency) return null;
+    // Fiyat verisini bul, bulamazsan varsayılan değer kullan
+    const priceData = prices.find(p => p.id === currency.id);
     
-    // Varsayılan fiyat verileri - fiyat verisi yoksa bunları kullan
+    // Varsayılan fiyat verileri
     const defaultPrice = {
       price: 0,
       priceChange24h: 0
     };
     
+    // Bakiye yoksa 0 kullan
+    const balanceAmount = balance ? balance.amount : "0";
+    
     return {
       currency,
-      balance: balance.amount,
+      balance: balanceAmount,
       price: priceData?.price || defaultPrice.price,
       priceChange24h: priceData?.change24h || defaultPrice.priceChange24h,
-      isFavorite: wallet.favorites.includes(balance.currencyId)
+      isFavorite: wallet.favorites.includes(currency.id)
     };
-  }).filter(Boolean);
+  });
   
   // Filter based on active view
   const filteredCryptoList = activeView === 'favorites'
