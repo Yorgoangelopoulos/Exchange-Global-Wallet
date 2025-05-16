@@ -3,10 +3,10 @@ import { CryptoCurrency, Balance, Transaction } from '@shared/schema';
 import { apiRequest } from '@/lib/queryClient';
 import { getWalletBalance } from '@/lib/wallet-service';
 
-// Desteklenen kripto para birimleri - İstenen 4 kripto para
+// Desteklenen kripto para birimleri - İstenen 4 kripto para (veritabanında varolan ID'ler ile)
 const supportedCurrencies: CryptoCurrency[] = [
   { id: 'ethereum', name: 'Ethereum', symbol: 'ETH', description: null, iconUrl: 'https://cryptologos.cc/logos/ethereum-eth-logo.svg', color: '#627EEA', isActive: true, sortOrder: 1 },
-  { id: 'bsc', name: 'BNB Smart Chain', symbol: 'BNB', description: null, iconUrl: 'https://cryptologos.cc/logos/bnb-bnb-logo.svg', color: '#F3BA2F', isActive: true, sortOrder: 2 },
+  { id: 'bnb', name: 'BNB Smart Chain', symbol: 'BNB', description: null, iconUrl: 'https://cryptologos.cc/logos/bnb-bnb-logo.svg', color: '#F3BA2F', isActive: true, sortOrder: 2 },
   { id: 'solana', name: 'Solana', symbol: 'SOL', description: null, iconUrl: 'https://cryptologos.cc/logos/solana-sol-logo.svg', color: '#00FFA3', isActive: true, sortOrder: 3 },
   { id: 'tron', name: 'TRON', symbol: 'TRX', description: null, iconUrl: 'https://cryptologos.cc/logos/tron-trx-logo.svg', color: '#FF0013', isActive: true, sortOrder: 4 }
 ];
