@@ -424,6 +424,40 @@ const WalletSwitcher = () => {
                     </Button>
                   </div>
                 )}
+                
+                {showDeleteConfirm && (
+                  <div className="border-t border-gray-800 mt-2 pt-2">
+                    <div className="bg-red-900/30 p-3 rounded-md mb-2">
+                      <div className="flex items-start gap-2">
+                        <AlertTriangle className="h-5 w-5 text-red-400 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <h4 className="text-sm font-medium text-white mb-1">Cüzdanı Silmek İstediğinize Emin Misiniz?</h4>
+                          <p className="text-xs text-gray-300 mb-2">
+                            Bu işlem geri alınamaz ve cüzdandaki tüm bilgiler silinecektir.
+                          </p>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 mt-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full text-xs"
+                          onClick={() => setShowDeleteConfirm(null)}
+                        >
+                          İptal
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          className="w-full text-xs"
+                          onClick={() => confirmDelete(showDeleteConfirm)}
+                        >
+                          Sil
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </motion.div>
           )}
