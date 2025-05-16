@@ -1,97 +1,21 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect } from 'react';
 import { CryptoCurrency, Balance, Transaction } from '@shared/schema';
+import { apiRequest } from '@/lib/queryClient';
+import { getWalletBalance } from '@/lib/wallet-service';
 
-// Initial wallet data - in a real app, this would come from a database or local storage
-const initialCurrencies: CryptoCurrency[] = [
+// Desteklenen kripto para birimleri - Gerçek uygulamada kullanılacak
+const supportedCurrencies: CryptoCurrency[] = [
   { id: 'ethereum', name: 'Ethereum', symbol: 'ETH', description: null, iconUrl: 'https://cryptologos.cc/logos/ethereum-eth-logo.svg', color: '#627EEA', isActive: true, sortOrder: 1 },
-  { id: 'solana', name: 'Solana', symbol: 'SOL', description: null, iconUrl: 'https://cryptologos.cc/logos/solana-sol-logo.svg', color: '#00FFA3', isActive: true, sortOrder: 2 },
-  { id: 'tron', name: 'TRON', symbol: 'TRX', description: null, iconUrl: 'https://cryptologos.cc/logos/tron-trx-logo.svg', color: '#FF0013', isActive: true, sortOrder: 3 },
-  { id: 'cardano', name: 'Cardano', symbol: 'ADA', description: null, iconUrl: 'https://cryptologos.cc/logos/cardano-ada-logo.svg', color: '#0033AD', isActive: true, sortOrder: 4 },
-  { id: 'avalanche', name: 'Avalanche', symbol: 'AVAX', description: null, iconUrl: 'https://cryptologos.cc/logos/avalanche-avax-logo.svg', color: '#E84142', isActive: true, sortOrder: 5 },
-  { id: 'bnb', name: 'BNB', symbol: 'BNB', description: null, iconUrl: 'https://cryptologos.cc/logos/bnb-bnb-logo.svg', color: '#F3BA2F', isActive: true, sortOrder: 6 },
-  { id: 'xrp', name: 'XRP', symbol: 'XRP', description: null, iconUrl: 'https://cryptologos.cc/logos/xrp-xrp-logo.svg', color: '#23292F', isActive: true, sortOrder: 7 },
-  { id: 'polkadot', name: 'Polkadot', symbol: 'DOT', description: null, iconUrl: 'https://cryptologos.cc/logos/polkadot-new-dot-logo.svg', color: '#E6007A', isActive: true, sortOrder: 8 },
-  { id: 'dogecoin', name: 'Dogecoin', symbol: 'DOGE', description: null, iconUrl: 'https://cryptologos.cc/logos/dogecoin-doge-logo.svg', color: '#C2A633', isActive: true, sortOrder: 9 },
-  { id: 'tether', name: 'Tether', symbol: 'USDT', description: null, iconUrl: 'https://cryptologos.cc/logos/tether-usdt-logo.svg', color: '#50AF95', isActive: true, sortOrder: 10 }
+  { id: 'bsc', name: 'BNB Smart Chain', symbol: 'BNB', description: null, iconUrl: 'https://cryptologos.cc/logos/bnb-bnb-logo.svg', color: '#F3BA2F', isActive: true, sortOrder: 2 },
+  { id: 'solana', name: 'Solana', symbol: 'SOL', description: null, iconUrl: 'https://cryptologos.cc/logos/solana-sol-logo.svg', color: '#00FFA3', isActive: true, sortOrder: 3 },
+  { id: 'tron', name: 'TRON', symbol: 'TRX', description: null, iconUrl: 'https://cryptologos.cc/logos/tron-trx-logo.svg', color: '#FF0013', isActive: true, sortOrder: 4 },
+  { id: 'cardano', name: 'Cardano', symbol: 'ADA', description: null, iconUrl: 'https://cryptologos.cc/logos/cardano-ada-logo.svg', color: '#0033AD', isActive: true, sortOrder: 5 }
 ];
 
-const initialBalances: Balance[] = [
-  { id: 1, walletId: 1, currencyId: 'ethereum', amount: "2.5" },
-  { id: 2, walletId: 1, currencyId: 'solana', amount: "35.75" },
-  { id: 3, walletId: 1, currencyId: 'tron', amount: "1500" },
-  { id: 4, walletId: 1, currencyId: 'avalanche', amount: "12.35" },
-  { id: 5, walletId: 1, currencyId: 'cardano', amount: "450" },
-  { id: 6, walletId: 1, currencyId: 'tether', amount: "250.50" },
-  { id: 7, walletId: 1, currencyId: 'bnb', amount: "1.75" },
-  { id: 8, walletId: 1, currencyId: 'xrp', amount: "500" },
-  { id: 9, walletId: 1, currencyId: 'polkadot', amount: "25" },
-  { id: 10, walletId: 1, currencyId: 'dogecoin', amount: "1200" }
-];
-
-const initialTransactions: Transaction[] = [
-  { 
-    id: 't1', 
-    walletId: 1,
-    currencyId: 'ethereum', 
-    type: 'send', 
-    amount: "0.75", 
-    timestamp: new Date(Date.now() - 86400000), 
-    address: '0x71C7656EC7ab88b098defB751B7401B5f6d8976F',
-    hash: '0xabcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789',
-    fee: "0.005",
-    confirmed: true
-  },
-  { 
-    id: 't2', 
-    walletId: 1,
-    currencyId: 'solana', 
-    type: 'receive', 
-    amount: "10.5", 
-    timestamp: new Date(Date.now() - 172800000), 
-    address: 'EbmJMY9GhQbVfEuPpKJMc9U4BhNoP6kLZE9mfNkhHAeZ',
-    hash: null,
-    fee: null,
-    confirmed: true
-  },
-  { 
-    id: 't3', 
-    walletId: 1,
-    currencyId: 'tron', 
-    type: 'receive', 
-    amount: "500", 
-    timestamp: new Date(Date.now() - 259200000), 
-    address: 'TJYeasTPa6cx4x6UZCaEXnGQiVCty59961',
-    hash: null,
-    fee: null,
-    confirmed: true
-  },
-  { 
-    id: 't4', 
-    walletId: 1,
-    currencyId: 'tron', 
-    type: 'receive', 
-    amount: "1000", 
-    timestamp: new Date(Date.now() - 345600000), 
-    address: 'TJYeasTPa6cx4x6UZCaEXnGQiVCty59961',
-    hash: null,
-    fee: null,
-    confirmed: true
-  },
-  { 
-    id: 't5', 
-    walletId: 1,
-    currencyId: 'cardano', 
-    type: 'receive', 
-    amount: "450", 
-    timestamp: new Date(Date.now() - 432000000), 
-    address: 'addr1q8v42wjda8r6mpfj40d36d2kzjtdks4jfayrwyxf2qu6084cwlz8ut5fixje8j8t4pkexze56xnt88ls5qh3ukljxwpsdm0vqp',
-    hash: null,
-    fee: null,
-    confirmed: true
-  }
-];
-
-const initialFavorites: string[] = ['ethereum', 'tron'];
+// Varsayılan boş başlangıç durumları
+const emptyBalances: Balance[] = [];
+const emptyTransactions: Transaction[] = [];
+const defaultFavorites: string[] = ['ethereum', 'bsc', 'tron'];
 
 // Type for our wallet state
 interface WalletState {
@@ -105,50 +29,95 @@ interface WalletState {
 export const useWallet = () => {
   // Initial state
   const [wallet, setWallet] = useState<WalletState>({
-    currencies: initialCurrencies,
-    balances: initialBalances,
-    transactions: initialTransactions,
-    favorites: initialFavorites
+    currencies: supportedCurrencies,
+    balances: emptyBalances,
+    transactions: emptyTransactions,
+    favorites: defaultFavorites
   });
+  
+  // Cüzdanın mnemonic anahtarlarını saklamak için state
+  const [walletMnemonics, setWalletMnemonics] = useState<{[walletId: string]: string}>({});
   
   // Load active wallet ID from localStorage and refresh cüzdan içeriği
   useEffect(() => {
-    // Local storage'dan active wallet ID'yi load et ve her değişimde güncelle
-    const refreshWalletData = () => {
+    // Cüzdan verilerini güncelle
+    const refreshWalletData = async () => {
       const storedActiveWalletId = localStorage.getItem('active_wallet_id');
       if (storedActiveWalletId) {
-        console.log(`Loading data for wallet ID: ${storedActiveWalletId}`);
+        console.log(`Loading real data for wallet ID: ${storedActiveWalletId}`);
         
-        // Gerçek API çağrısı yerine demo veri oluştur
-        const walletIdNum = parseInt(storedActiveWalletId) || 1;
-        
-        // Her cüzdan için farklı bakiyeleri simüle et (her cüzdan için farklı değerler)
-        const factor = (walletIdNum % 5) + 0.5; // 0.5 ile 5.5 arası bir çarpan
-        
-        // Daha belirgin değişimler için bazı bakiyeleri değiştir
-        const adjustedBalances = initialBalances.map(balance => {
-          // Cüzdan ID'sine göre bazı tokenler daha ağırlıklı
-          let modifier = factor;
+        try {
+          // Cüzdan bilgilerini API'den getir
+          const walletInfo: any = await apiRequest(`/api/wallets/${storedActiveWalletId}`);
           
-          // Cüzdan ID'si çift sayı ise bazı tokenler daha fazla olsun
-          if (walletIdNum % 2 === 0 && ['ethereum', 'solana', 'tron'].includes(balance.currencyId)) {
-            modifier *= 1.5;
-          } 
-          // Cüzdan ID'si tek sayı ise farklı tokenler daha fazla olsun
-          else if (walletIdNum % 2 === 1 && ['cardano', 'bnb', 'polkadot'].includes(balance.currencyId)) {
-            modifier *= 1.8;
+          if (!walletInfo) {
+            console.error("Cüzdan bilgileri bulunamadı");
+            return;
           }
           
-          return {
-            ...balance,
-            amount: (parseFloat(balance.amount) * modifier).toFixed(2)
-          };
-        });
-        
-        setWallet(prev => ({
-          ...prev,
-          balances: adjustedBalances
-        }));
+          // Cüzdan mnemonic bilgisini sakla
+          if (walletInfo.mnemonic) {
+            setWalletMnemonics(prev => ({
+              ...prev,
+              [storedActiveWalletId]: walletInfo.mnemonic
+            }));
+          }
+          
+          // Cüzdan adreslerini API'den getir
+          const addressesResponse = await apiRequest(`/api/wallet/${storedActiveWalletId}/addresses`);
+          const addresses: any[] = addressesResponse || [];
+          
+          if (!addresses || addresses.length === 0) {
+            console.log("Cüzdan için adres bulunamadı, boş bakiye ile devam ediliyor");
+            setWallet(prev => ({
+              ...prev,
+              balances: emptyBalances,
+              transactions: emptyTransactions
+            }));
+            return;
+          }
+          
+          // Her bir desteklenen kripto para için bakiye hesapla
+          const allBalances: Balance[] = [];
+          
+          for (const currency of supportedCurrencies) {
+            const address = addresses.find((a) => a.currencyId === currency.id);
+            
+            if (address) {
+              try {
+                // Gerçek blockchain'den bakiye sorgula
+                const balance = await getWalletBalance(address.address, currency.id);
+                
+                allBalances.push({
+                  id: Math.floor(Date.now() + Math.random()), // Basit bir ID
+                  walletId: parseInt(storedActiveWalletId),
+                  currencyId: currency.id,
+                  amount: balance.toString()
+                });
+              } catch (error) {
+                console.error(`${currency.id} için bakiye sorgulama hatası:`, error);
+                allBalances.push({
+                  id: Math.floor(Date.now() + Math.random()),
+                  walletId: parseInt(storedActiveWalletId),
+                  currencyId: currency.id,
+                  amount: "0"
+                });
+              }
+            }
+          }
+          
+          // İşlemleri API'den getir
+          const transactionsResponse = await apiRequest(`/api/wallet/${storedActiveWalletId}/transactions`);
+          const transactions: Transaction[] = transactionsResponse || [];
+          
+          setWallet(prev => ({
+            ...prev,
+            balances: allBalances,
+            transactions: transactions
+          }));
+        } catch (error) {
+          console.error("Cüzdan verilerini getirirken hata:", error);
+        }
       }
     };
     
